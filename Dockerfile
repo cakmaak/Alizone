@@ -10,4 +10,4 @@ FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 COPY --from=build /app/target/Alizone-0.0.1-SNAPSHOT.jar app.jar
 # PORT değişkenini burada default olarak belirtme, Render kendi gönderiyor
-CMD ["sh", "-c", "java -Dserver.port=$PORT -Dserver.address=0.0.0.0 -jar app.jar"]
+ENTRYPOINT ["java","-Dserver.port=${PORT}","-Dserver.address=0.0.0.0","-jar","app.jar"]
