@@ -18,4 +18,4 @@ RUN mvn clean package -DskipTests
 EXPOSE 8080
 
 # Uygulamayı başlat
-CMD CMD ["java", "-Dserver.port=$PORT", "-jar", "target/Alizone-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-Dserver.port=$PORT", "-jar", "target/Alizone-0.0.1-SNAPSHOT.jar"]
