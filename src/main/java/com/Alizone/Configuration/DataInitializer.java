@@ -53,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
 
         if (!initAdminEnabled) {
-            return; // ⛔ PROD’da burası çalışmaz
+            return; 
         }
 
         userRepo.findByEmail(adminEmail).ifPresentOrElse(
