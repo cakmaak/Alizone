@@ -1,23 +1,21 @@
-# 1. Temel image (Java 17)
+# Base image
 FROM eclipse-temurin:17-jdk-jammy
 
-# 2. Çalışma dizini
+# Çalışma dizini
 WORKDIR /app
 
-# 3. Maven wrapper ve pom.xml kopyala
-COPY mvnw .
-COPY .mvn/ .mvn
+# Maven ve diğer paketleri yükle
+RUN apt-get update && apt-get install -y maven
+
+# Kaynak kodu ve pom.xml'i kopyala
 COPY pom.xml .
-
-# 4. Dependencies'i indir
-RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline -B
-
-# 5. Tüm kaynak kodunu kopyala
 COPY src ./src
 
-# 6. Build
-RUN ./mvnw clean package -DskipTests
+# Build et
+RUN mvn clean package -DskipTests
 
-# 7. JAR dosyasını çalıştır
+# Port
+EXPOSE 8080
+
+# Uygulamayı başlat
 CMD ["java", "-jar", "target/Alizone-0.0.1-SNAPSHOT.jar"]
