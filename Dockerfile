@@ -1,7 +1,6 @@
 # Base image
 FROM eclipse-temurin:17-jdk-jammy
 
-# Çalışma dizini
 WORKDIR /app
 
 # Maven yükle
@@ -14,8 +13,8 @@ COPY src ./src
 # Build
 RUN mvn clean package -DskipTests
 
-# Render, portu otomatik atıyor; Spring Boot da CMD ile $PORT kullanacak
+# Render portu kullanacak
 EXPOSE 8080
 
-# Uygulamayı başlat
+# Spring Boot'u başlat
 CMD java -Dserver.port=$PORT -jar target/Alizone-0.0.1-SNAPSHOT.jar
