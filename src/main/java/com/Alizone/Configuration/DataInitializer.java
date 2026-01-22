@@ -3,6 +3,7 @@ package com.Alizone.Configuration;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,34 +21,56 @@ import javax.management.relation.Role;
 public class DataInitializer implements CommandLineRunner {
 
     private final IUserService userService;
-    
-    @Autowired
-    UserRepository userRepo;
+    private final UserRepository userRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public DataInitializer(IUserService userService) {
+    @Value("${app.init-admin.enabled}")
+    private boolean initAdminEnabled;
+
+    @Value("${app.init-admin.email}")
+    private String adminEmail;
+
+    @Value("${app.init-admin.password}")
+    private String adminPassword;
+
+    @Value("${app.init-admin.name}")
+    private String adminName;
+
+    @Value("${app.init-admin.surname}")
+    private String adminSurname;
+
+    public DataInitializer(
+            IUserService userService,
+            UserRepository userRepo,
+            BCryptPasswordEncoder passwordEncoder
+    ) {
         this.userService = userService;
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        Optional<User> adminOpt = userRepo.findByEmail("admin@admin.com");
+    public void run(String... args) {
 
-        if (adminOpt.isEmpty()) {
-            User admin = new User();
-            admin.setIsim("Default Admin");
-            admin.setSoyisim("Admin"); 
-            admin.setEmail("admin@admin.com");
-            admin.setPassword(new BCryptPasswordEncoder().encode("1234"));
-            admin.setTelno("0000000000"); 
-            admin.setVasıf(ROL.ADMIN);
-
-            userService.saveuseradmin(admin);
-
-            System.out.println("✅ Default admin oluşturuldu: admin@admin.com / 123456");
+        if (!initAdminEnabled) {
+            return; // ⛔ PROD’da burası çalışmaz
         }
 
-        else {
-            System.out.println("ℹ️ Admin zaten mevcut: " + adminOpt.get().getEmail());
-        }
+        userRepo.findByEmail(adminEmail).ifPresentOrElse(
+            user -> System.out.println("ℹ️ Admin zaten mevcut: " + user.getEmail()),
+            () -> {
+                User admin = new User();
+                admin.setIsim(adminName);
+                admin.setSoyisim(adminSurname);
+                admin.setEmail(adminEmail);
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                admin.setTelno("0000000000");
+                admin.setVasıf(ROL.ADMIN);
+
+                userService.saveuseradmin(admin);
+
+                System.out.println("✅ Admin oluşturuldu: " + adminEmail);
+            }
+        );
     }
 }
