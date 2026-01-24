@@ -18,7 +18,7 @@ public class PaymentAuditLogger {
     @Autowired
     private PaymentAuditRepository paymentAuditRepository;
 
-    // 🔁 ESKİ KODLAR BOZULMASIN DİYE
+   
     public void log(
             PaymentEvent event,
             Long orderId,

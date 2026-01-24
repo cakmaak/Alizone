@@ -297,14 +297,14 @@ public class OrderItemService implements IOrderItemService {
 			throw new BusinessException("Sadece ödenmiş sipariş kargoya verilebilir");
 		}
 
-		// 📦 KARGOYA VER
+		
 		order.setSiparisdurumu(OrderStatus.SHIPPED);
 		order.setKargotakipno(cargoTrackingNo);
 		order.setShippedAt(LocalDateTime.now());
 
 		orderRepository.save(order);
 
-		// 📧 MÜŞTERİYE MAIL
+		
 		try {
 			String mailBody = mailService.buildShippedMail(order);
 

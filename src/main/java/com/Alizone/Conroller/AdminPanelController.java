@@ -149,6 +149,15 @@ public class AdminPanelController implements IAdminPanelController {
 
         return ResponseEntity.ok("OK");
     }
+	
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/setteklifal/{id}")
+	@Override
+	public String setProductteklifilesatilir(@PathVariable Long id) {
+		return productService.setProductteklifilesatilir(id);
+		
+	}
 		
 	}
 

@@ -28,6 +28,7 @@ public interface IProductService {
 	public Product updateProductimage(Long id,List<String> newurl);
 	public Product updateStockquantity(Long id,Integer newquantity);
 	public Integer updatebtuproduct(Long id,Integer newbtu);
+	public String setProductteklifilesatilir(Long id);
 	
 	
 

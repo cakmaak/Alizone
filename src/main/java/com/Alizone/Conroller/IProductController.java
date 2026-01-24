@@ -14,5 +14,6 @@ public interface IProductController {
 	public ResponseEntity<List<DtoProduct>> getallproductdto();
 	public DtoProduct findProductByid(Long id);
 	
+	
 
 }

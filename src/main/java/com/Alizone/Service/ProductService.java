@@ -205,6 +205,15 @@ public class ProductService implements IProductService {
 		productRepository.save(product);
 		return "Ürün aktifleşirildi";
 	}
+
+	@Override
+	public String setProductteklifilesatilir(Long id) {
+		Optional<Product> optional=productRepository.findById(id);
+		Product product=optional.get();
+		product.setTeklifilesatilir(false);
+		productRepository.save(product);
+		return "başarıyla güncellendi refresh atarak kontrol edebilirsiniz";
+	}
 	}
 
 

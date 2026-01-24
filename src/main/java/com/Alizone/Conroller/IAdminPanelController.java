@@ -22,4 +22,5 @@ public interface IAdminPanelController {
 	public String teklifilesatilir(Long id);
 	public String setactiveproduct(Long id);
 	public ResponseEntity<?> startRefund(Long orderId);
+	public String setProductteklifilesatilir(Long id);
 }
