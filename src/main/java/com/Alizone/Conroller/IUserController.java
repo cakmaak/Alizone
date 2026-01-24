@@ -11,7 +11,7 @@ import com.Alizone.Entity.User;
 
 public interface IUserController {
 	
-	public ResponseEntity<Map<String, String>> SignUpUser(SignupRequest signupRequest)
+	public ResponseEntity<Map<String, String>> SignUpUser(SignupRequest signupRequest);
 	public ResponseEntity<?> forgotPassword(String email);
 	public ResponseEntity<?> resetPassword(String token,String newPassword);
 
