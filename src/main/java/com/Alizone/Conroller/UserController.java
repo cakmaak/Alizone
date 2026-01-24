@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Alizone.Dto.SignupRequest;
+import com.Alizone.Dto.UserResponse;
 import com.Alizone.Entity.User;
 import com.Alizone.Service.BasketItemService;
 import com.Alizone.Service.IUserService;
@@ -33,13 +34,7 @@ public class UserController implements IUserController {
 
    
 	
-	@PostMapping("/signup")
-	@Override
-	public ResponseEntity<User> SignUpUser(@RequestBody SignupRequest signupRequest) {
-		User signup=userService.signupRequest(signupRequest);
-		
-		return ResponseEntity.ok(signup);
-	}
+	
 	
 	@PostMapping("/forgot-password")
 	@Override
@@ -54,6 +49,21 @@ public class UserController implements IUserController {
 	public ResponseEntity<?> resetPassword(@RequestParam String token,@RequestParam String newPassword) {
 		
 		return userService.resetPassword(token, newPassword);
+	}
+
+	
+	@PostMapping("/signup")
+	@Override
+	public ResponseEntity<UserResponse> SignUpUser(@RequestBody SignupRequest signupRequest) {
+		User signup = userService.signupRequest(signupRequest);
+
+	    UserResponse res = new UserResponse();
+	    res.setEmail(signup.getEmail());
+	    res.setIsim(signup.getIsim());
+	    res.setSoyisim(signup.getSoyisim());
+	    res.setTelno(signup.getTelno());
+
+	    return ResponseEntity.ok(res);
 	}
 
 	
