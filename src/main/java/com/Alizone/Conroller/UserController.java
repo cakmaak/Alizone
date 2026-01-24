@@ -1,5 +1,8 @@
 package com.Alizone.Conroller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.Alizone.Dto.SignupRequest;
 import com.Alizone.Dto.UserResponse;
 import com.Alizone.Entity.User;
+import com.Alizone.Security.JwtService;
 import com.Alizone.Service.BasketItemService;
 import com.Alizone.Service.IUserService;
 import com.Alizone.Service.MailService;
@@ -31,6 +35,9 @@ public class UserController implements IUserController {
 	
 	@Autowired
 	private BasketItemService basketItemService;
+	
+	@Autowired
+	private JwtService jwtService;
 
    
 	
@@ -54,19 +61,19 @@ public class UserController implements IUserController {
 	
 	@PostMapping("/signup")
 	@Override
-	public ResponseEntity<UserResponse> SignUpUser(@RequestBody SignupRequest signupRequest) {
+	public ResponseEntity<Map<String, String>> SignUpUser(@RequestBody SignupRequest signupRequest) {
 		User signup = userService.signupRequest(signupRequest);
+	    
+	    String token = jwtService.generateToken(signup); // token üret
 
-	    UserResponse res = new UserResponse();
-	    res.setEmail(signup.getEmail());
-	    res.setIsim(signup.getIsim());
-	    res.setSoyisim(signup.getSoyisim());
-	    res.setTelno(signup.getTelno());
+	    Map<String, String> res = new HashMap<>();
+	    res.put("token", token);
 
 	    return ResponseEntity.ok(res);
+	}
 	}
 
 	
 	
 
-}
+
