@@ -181,79 +181,44 @@ public class OrderItemService implements IOrderItemService {
 
 		return fakepaymentlink;
 	}
-
+	
 	@Override
 	@Transactional
 	public void handlePaymentCallback(Long orderId, boolean success, String paymentId) {
+	    Order order = orderRepository.findById(orderId)
+	            .orElseThrow(() -> new BusinessException("Sipariş bulunamadı"));
 
-		Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException("Sipariş bulunamadı"));
+	    if (order.getSiparisdurumu() == OrderStatus.PAID) return;
 
-		if (order.getSiparisdurumu() == OrderStatus.PAID) {
-			return;
-		}
+	    if (success) {
+	        order.setSiparisdurumu(OrderStatus.PAID);
+	        order.setBankPaymentId(paymentId);
 
-		if (success) {
+	        // Stok güncelle
+	        for (OrderItem item : order.getItemlist()) {
+	            Product product = item.getProduct();
+	            int yeniStok = product.getStokAdeti() - item.getAdet();
+	            if (yeniStok < 0) throw new BusinessException(product.getIsim() + " stok yetersiz!");
+	            product.setStokAdeti(yeniStok);
+	            product.setReservedStock(product.getReservedStock() - item.getAdet());
+	        }
 
-			order.setSiparisdurumu(OrderStatus.PAID);
+	        // Sepet güncelle
+	        Basket basket = basketRepository.findByUser(order.getUser())
+	                .orElseThrow(() -> new BusinessException("Sepet bulunamadı"));
+	        for (BasketItem bi : basket.getBasketItems()) bi.setActive(false);
+	        basketRepository.saveAndFlush(basket);
 
-			order.setBankPaymentId(paymentId);
-
-			for (OrderItem item : order.getItemlist()) {
-				Product product = item.getProduct();
-				int yeniStok = product.getStokAdeti() - item.getAdet();
-				if (yeniStok < 0) {
-					throw new BusinessException(product.getIsim() + " stok yetersiz!");
-				}
-				product.setStokAdeti(yeniStok);
-				product.setReservedStock(product.getReservedStock() - item.getAdet());
-			}
-
-			Basket basket = basketRepository.findByUser(order.getUser())
-					.orElseThrow(() -> new BusinessException("Sepet bulunamadı"));
-
-			basket.getBasketItems().clear();
-			basketRepository.save(basket);
-			orderRepository.save(order);
-
-			try {
-
-				mailService.sendHtmlMail(order.getUser().getEmail(), "🛒 Siparişiniz Alındı",
-						mailService.buildCustomerOrderMail(order)
-
-				);
-
-				mailService.sendHtmlMail(adminMail, "📦 Yeni Sipariş Geldi", mailService.buildAdminOrderMail(order));
-
-			} catch (Exception e) {
-
-				adminLogger.error(
-					    "MAIL_SEND_FAILED | orderId={} | userId={}",
-					    order.getId(),
-					    order.getUser().getId(),
-					    e
-					);
-			}
-			paymentAuditLogger.log(PaymentEvent.PAYMENT_SUCCESS, order.getId(), order.getUser().getId(),
-					"paymentId=" + paymentId);
-
-		} else {
-
-			for (OrderItem item : order.getItemlist()) {
-				Product product = item.getProduct();
-
-				product.setReservedStock(product.getReservedStock() - item.getAdet());
-
-			}
-
-			order.setSiparisdurumu(OrderStatus.CANCELLED);
-			orderRepository.save(order);
-			paymentAuditLogger.log(
-				    PaymentEvent.PAYMENT_FAILED,
-				    order.getId(),
-				    order.getUser().getId(),
-				    "reservedStockReleased=true"
-				);
-		}
+	        orderRepository.save(order);
+	    } else {
+	        // Ödeme başarısız → rezervleri geri al
+	        for (OrderItem item : order.getItemlist()) {
+	            Product product = item.getProduct();
+	            product.setReservedStock(product.getReservedStock() - item.getAdet());
+	        }
+	        order.setSiparisdurumu(OrderStatus.CANCELLED);
+	        orderRepository.save(order);
+	    }
 	}
 
 	@Override

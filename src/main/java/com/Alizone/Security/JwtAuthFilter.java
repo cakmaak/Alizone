@@ -36,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (
                 path.startsWith("/auth/")
                 || path.startsWith("/payment/")
-                || path.equals("/appointment/user/saveuser")
+                
         ) {
             chain.doFilter(request, response);
             return;
