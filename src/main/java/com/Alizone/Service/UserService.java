@@ -35,23 +35,28 @@ public class UserService implements	IUserService {
 
 	@Override
 	public User signupRequest(SignupRequest signupRequest) {
-		
-		if (userRepository.existsByEmail(signupRequest.getEmail())) {
+	    if (userRepository.existsByEmail(signupRequest.getEmail())) {
 	        throw new BusinessException("Bu mail adresine kayıtlı hesap zaten mevcut");
 	    }
-		
-		User user =new User();
-		user.setEmail(signupRequest.getEmail());
-		user.setIsim(signupRequest.getIsim());
-		user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-		user.setKayittarihi(LocalDateTime.now());
-		user.setSoyisim(signupRequest.getSoyisim());
-		user.setVasıf(ROL.USER);
-		user.setTelno(signupRequest.getTelno());
-		userRepository.save(user);
-		mailService.sendwelcomemail(user);
 
-		return user;
+	    User user = new User();
+	    user.setEmail(signupRequest.getEmail());
+	    user.setIsim(signupRequest.getIsim());
+	    user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+	    user.setKayittarihi(LocalDateTime.now());
+	    user.setSoyisim(signupRequest.getSoyisim());
+	    user.setVasıf(ROL.USER);
+	    user.setTelno(signupRequest.getTelno());
+	    userRepository.save(user);
+
+	    
+	    try {
+	        mailService.sendwelcomemail(user);
+	    } catch (Exception e) {
+	        System.out.println("Mail gönderilemedi: " + e.getMessage());
+	    }
+
+	    return user;
 	}
 
 	
