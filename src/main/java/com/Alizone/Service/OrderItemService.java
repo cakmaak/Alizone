@@ -31,7 +31,7 @@ import com.Alizone.Payment.PaymentEvent;
 import com.Alizone.Repository.BasketRepository;
 import com.Alizone.Repository.OrderRepository;
 
-import jakarta.mail.MessagingException;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.transaction.annotation.Transactional;
