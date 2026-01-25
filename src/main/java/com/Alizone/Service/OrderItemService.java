@@ -276,7 +276,7 @@ public class OrderItemService implements IOrderItemService {
 			mailService.sendHtmlMail(order.getUser().getEmail(), "📦 Siparişiniz Kargoya Verildi", mailBody);
 		} 
 
-			catch (MessagingException e) {
+			catch (Exception e) {
 			    adminLogger.error(
 			        "MAIL_SEND_FAILED | orderId={} | userId={}",
 			        order.getId(),

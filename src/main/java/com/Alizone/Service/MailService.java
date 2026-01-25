@@ -1,6 +1,8 @@
 package com.Alizone.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -9,10 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.Alizone.Entity.Address;
 import com.Alizone.Entity.Order;
@@ -28,6 +35,11 @@ public class MailService {
 
 	@Value("${mail.enabled:true}")
 	private boolean mailEnabled;
+	
+	@Value("${mail.SELZY_API_KEY}")
+	private String selzyApıkey;
+	
+	
 	
 	@Value("${MAIL_FROM}")
 	private String MAIL_FROM;
@@ -73,20 +85,32 @@ public class MailService {
 	 * --------------------------------------------------
 	 */
 
-	public void sendHtmlMail(String to, String subject, String html) throws MessagingException {
+	public void sendHtmlMail(String to, String subject, String html) {
 
-		MimeMessage message = mailSender.createMimeMessage();
+	    String url = "https://api.selzy.com/en/api/sendEmail";
 
-		MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+	    Map<String, Object> payload = new HashMap<>();
+	    payload.put("format", "json");
+	    payload.put("api_key", selzyApıkey);
+	    payload.put("from", MAIL_FROM);
+	    payload.put("to", to);
+	    payload.put("subject", subject);
+	    payload.put("body", html);
 
-		helper.setTo(to);
-		helper.setSubject(subject);
-		helper.setFrom(MAIL_FROM);
-		helper.setText(html, true);
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    headers.setAcceptCharset(java.util.List.of(StandardCharsets.UTF_8));
 
-		mailSender.send(message);
+	    HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+	    try {
+	        RestTemplate restTemplate = new RestTemplate();
+	        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+	        log.info("Selzy mail gönderildi: {}", response.getBody());
+	    } catch (Exception e) {
+	        log.error("MAIL_SEND_FAILED | to={} subject={}", to, subject, e);
+	    }
 	}
-
 	/*
 	 * ------------------------------------------------- MÜŞTERİ MAİLİ
 	 * --------------------------------------------------
@@ -391,7 +415,7 @@ public class MailService {
 			// 🛠 ADMIN
 			sendHtmlMail(adminMail, "⚠️ Sipariş İptal Edildi - #" + order.getId(), buildAdminOrderCancelledMail(order));
 
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			log.error("MAIL_SEND_FAILED | orderId={}", order.getId(), e);
 		}
 	}
