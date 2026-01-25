@@ -97,7 +97,8 @@ public class SecurityConfig {
                         "/alizone/product/getproduct/**",
                         "/payment/callback",
                         "/payment/test-sign",
-                        "/alizone/adminpanel/refund-callback"
+                        "/alizone/adminpanel/refund-callback",
+                        "/alizone-ecommerce.vercel.app"
                 ).permitAll()
                 
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
