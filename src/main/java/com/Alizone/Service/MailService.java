@@ -86,7 +86,7 @@ public class MailService {
 
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setFrom("Alizone Klima <yusuf612844@gmail.com>");
+        helper.setFrom("Mailgun Sandbox <postmaster@sandboxc47f7983a9ae4167b32b15606faa5006.mailgun.org>");
         helper.setText(html, true);
 
         mailSender.send(message);
