@@ -9,9 +9,17 @@ public class MailService {
     @Value("${mail.from}")
     private String mailFrom;
 
+    @Value("${mail.enabled:false}")
+    private boolean mailEnabled;
+
     public void sendHtmlMail(String to, String subject, String html) {
-        // Gerçek mail gönderimi yok, sadece log basılıyor
-        System.out.println("MAIL SIMULATED -> To: " + to + ", Subject: " + subject);
-        System.out.println("HTML: " + html);
+        if(!mailEnabled) {
+            System.out.println("[SIMULATED MAIL] To: " + to + ", Subject: " + subject);
+            System.out.println("HTML: " + html);
+            return;
+        }
+
+        // Buraya deploy’da gerçek mail servisi entegre edilecek
+        System.out.println("[MAIL SERVICE ENABLED] Mail would be sent here");
     }
 }
