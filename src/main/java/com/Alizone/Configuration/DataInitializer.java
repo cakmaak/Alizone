@@ -1,4 +1,4 @@
-package com.Alizone.Configuration;
+/*package com.Alizone.Configuration;
 
 
 
@@ -73,4 +73,4 @@ public class DataInitializer implements CommandLineRunner {
             }
         );
     }
-}
+}*/

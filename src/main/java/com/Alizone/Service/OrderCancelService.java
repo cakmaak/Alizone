@@ -28,8 +28,8 @@ public class OrderCancelService {
 	
 	
 	
-	@Autowired
-	private MailService mailService;
+	/*@Autowired
+	private MailService mailService;*/
 
     @Autowired
     private UserService userService;
