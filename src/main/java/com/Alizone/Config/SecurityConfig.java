@@ -63,28 +63,21 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "https://alizone-ecommerce.vercel.app"
-        ));
-
-        config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
-
+        config.setAllowedOrigins(List.of("http://localhost:5173","https://alizone.vercel.app","https://alizone-production.up.railway.app","https://alizone-ecommerce.vercel.app"));
+        config.setAllowedMethods(
+                List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
@@ -93,24 +86,23 @@ public class SecurityConfig {
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
-
-                // ⭐ CORS PREFLIGHT
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-
-                // ⭐ PUBLIC ENDPOINTS
                 .requestMatchers(
-                    "/auth/**",
-                    "/alizone/login",
-                    "/alizone/user/signup",
-                    "/alizone/user/forgot-password",
-                    "/alizone/user/reset-password",
-                    "/alizone/product/**",
-                    "/payment/**",
-                    "/payment/callback",
-                    "/payment/test-sign",
-                    "/alizone/adminpanel/refund-callback"
+                        "/auth/**",
+                        "/alizone/login",
+                        "/alizone/user/signup",
+                        "/payment/**",
+                        "/alizone/user/forgot-password",
+                        "/alizone/user/reset-password",
+                        "/alizone/product/getalldtoproduct",
+                        "/alizone/product/getproduct/**",
+                        "/payment/callback",
+                        "/payment/test-sign",
+                        "/alizone/adminpanel/refund-callback",
+                        "/alizone-ecommerce.vercel.app"
+                        
                 ).permitAll()
-
+                
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )
 
@@ -119,7 +111,7 @@ public class SecurityConfig {
             // ⭐ RATE LIMIT (en önde)
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 
-            // ⭐ JWT
+            // ⭐ JWT FILTER (1 KERE)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

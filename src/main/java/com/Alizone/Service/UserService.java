@@ -51,7 +51,7 @@ public class UserService implements	IUserService {
 
 	    
 	    try {
-	        //mailService.sendwelcomemail(user);
+	        mailService.sendwelcomemail(user);
 	    } catch (Exception e) {
 	        System.out.println("Mail gönderilemedi: " + e.getMessage());
 	    }
@@ -100,7 +100,7 @@ public class UserService implements	IUserService {
 
 	    userRepository.save(user);
 
-	    //mailService.sendResetPasswordEmail(user, token);
+	    mailService.sendResetPasswordEmail(user, token);
 
 	    return ResponseEntity.ok("Mail gönderildi");
 	}
