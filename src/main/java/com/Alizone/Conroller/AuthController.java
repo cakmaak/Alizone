@@ -58,11 +58,8 @@ public class AuthController {
         }
 
         // Login başarılı → mail gönder (test amaçlı)
-        mailService.sendHtmlMail(
-            "test@localhost",
-            "Test Login",
-            "Kullanıcı " + user.getEmail() + " başarıyla giriş yaptı."
-        );
+       
+        
 
         String token = jwtService.generateToken(user);
 
