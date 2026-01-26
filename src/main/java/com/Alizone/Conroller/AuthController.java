@@ -2,6 +2,7 @@ package com.Alizone.Conroller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,10 +17,16 @@ import com.Alizone.Entity.User;
 import com.Alizone.Exception.BusinessException;
 import com.Alizone.Security.JwtService;
 import com.Alizone.Service.IUserService;
+import com.Alizone.Service.MailService;
+
+
 
 @RestController
 @RequestMapping("/alizone")
 public class AuthController {
+	
+	@Autowired
+	private MailService mailService;
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -36,12 +43,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        
-        User user = userService.findByEmail
-                (request.getEmail())
-                .orElseThrow(() ->
-                    new BusinessException("Bu mail adresi ile kayıtlı hesap bulunamadı")
-                );
+        User user = userService.findByEmail(request.getEmail())
+            .orElseThrow(() -> new BusinessException("Bu mail adresi ile kayıtlı hesap bulunamadı"));
 
         try {
             authenticationManager.authenticate(
@@ -54,9 +57,16 @@ public class AuthController {
             throw new BusinessException("Email veya Şifre hatalı");
         }
 
-        
+        // Login başarılı → mail gönder (test amaçlı)
+        mailService.sendHtmlMail(
+            "test@localhost",
+            "Test Login",
+            "Kullanıcı " + user.getEmail() + " başarıyla giriş yaptı."
+        );
+
         String token = jwtService.generateToken(user);
 
         return ResponseEntity.ok(Map.of("token", token));
     }
+
 }

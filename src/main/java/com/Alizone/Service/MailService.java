@@ -21,7 +21,7 @@ import com.Alizone.Entity.OrderItem;
 import com.Alizone.Entity.User;
 import com.Alizone.Enum.OrderStatus;
 
-
+@Service
 public class MailService {
 
 	@Value("${mail.admin}")
@@ -44,7 +44,7 @@ public class MailService {
 	 */
 
 	public void sendHtmlMail(String to, String subject, String body) {
-        // Localde sadece log bas
+        
         System.out.println("MAIL SEND SIMULATED -> To: " + to + ", Subject: " + subject);
     }
 }
