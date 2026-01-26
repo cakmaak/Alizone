@@ -12,6 +12,12 @@
         <version>3.3.1</version>
         <relativePath/>
     </parent>
+    
+    <profiles>
+    <profile>
+        <id>production</id>
+    </profile>
+</profiles>
 
     <groupId>com.Alizone</groupId>
     <artifactId>Alizone</artifactId>
@@ -86,11 +92,7 @@
 
         <!-- DATABASE -->
         
-      <dependency>
-        <groupId>com.resend</groupId>
-        <artifactId>resend-java</artifactId>
-        <version>1.0.0</version>
-    </dependency>
+     
         
         
        
@@ -107,6 +109,7 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        
 
         <!-- TEST -->
         <dependency>
