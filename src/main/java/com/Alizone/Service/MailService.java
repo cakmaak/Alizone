@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -52,7 +53,7 @@ public class MailService {
 	 * ------------------------------------------------- ESKİ MAİLLER (KALSIN)
 	 * --------------------------------------------------
 	 */
-
+	
 	public void sendwelcomemail(User user) {
 
 		SimpleMailMessage message = new SimpleMailMessage();
@@ -462,6 +463,18 @@ public class MailService {
 
 		return sb.toString();
 
+	}
+	@PostConstruct
+	public void testMailOnStartup() {
+	    if(!mailEnabled) return;
+
+	    try {
+	        sendSimpleMail("kendiemailin@gmail.com", "Test Mail - Alizone", "Bu bir test mailidir, container açıldı.");
+	        System.out.println("✅ Test mail gönderildi.");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        System.out.println("❌ Test mail gönderilemedi!");
+	    }
 	}
 
 }
