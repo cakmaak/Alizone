@@ -464,19 +464,6 @@ public class MailService {
 		return sb.toString();
 
 	}
-	@PostConstruct
-	public void testMailOnStartup() {
-	    if(!mailEnabled) return;
-
-	    new Thread(() -> {
-	        try {
-	            sendSimpleMail("yusuf612844@gmail.com", "Test Mail - Alizone", "Bu bir test mailidir, container açıldı.");
-	            System.out.println("✅ Test mail gönderildi.");
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.out.println("❌ Test mail gönderilemedi!");
-	        }
-	    }).start();
-	}
+	
 
 }
