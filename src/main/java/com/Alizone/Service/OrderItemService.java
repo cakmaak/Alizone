@@ -174,10 +174,10 @@ public class OrderItemService implements IOrderItemService {
 		order.setPaymentProvider("FAKEBANK");
 		orderRepository.save(order);
 
-		/*
-		 * mailService.sendCustomMail( user.getEmail(), "Ödeme Linki",
-		 * "Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink );
-		 */
+		
+		  mailService.sendCustomMail( user.getEmail(), "Ödeme Linki",
+		  "Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink );
+		 
 
 		return fakepaymentlink;
 	}

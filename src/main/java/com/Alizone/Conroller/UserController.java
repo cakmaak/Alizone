@@ -64,7 +64,8 @@ public class UserController implements IUserController {
 	public ResponseEntity<Map<String, String>> SignUpUser(@RequestBody SignupRequest signupRequest) {
 		User signup = userService.signupRequest(signupRequest);
 	    
-	    String token = jwtService.generateToken(signup); // token üret
+	    String token = jwtService.generateToken(signup);
+	    
 
 	    Map<String, String> res = new HashMap<>();
 	    res.put("token", token);
