@@ -469,7 +469,7 @@ public class MailService {
 	    if(!mailEnabled) return;
 
 	    try {
-	        sendSimpleMail("kendiemailin@gmail.com", "Test Mail - Alizone", "Bu bir test mailidir, container açıldı.");
+	        sendSimpleMail("yusuf612844@gmail.com", "Test Mail - Alizone", "Bu bir test mailidir, container açıldı.");
 	        System.out.println("✅ Test mail gönderildi.");
 	    } catch (Exception e) {
 	        e.printStackTrace();
