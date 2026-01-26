@@ -33,12 +33,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // 🔓 PUBLIC ENDPOINTLER (TOKEN İSTEMEZ)
-        if (
-                path.startsWith("/auth/")
-                || path.startsWith("/payment/")
-                || path.startsWith("/alizone/product/")
-                || path.startsWith("/alizone/login")
-                || path.startsWith("/alizone/user/")
+        // OPTIONS isteği bypass edilsin
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+            path.startsWith("/auth/") ||
+            path.startsWith("/payment/") ||
+            path.startsWith("/alizone/product/") ||
+            path.startsWith("/alizone/login") ||
+            path.startsWith("/alizone/user/")
         ) {
             chain.doFilter(request, response);
             return;
