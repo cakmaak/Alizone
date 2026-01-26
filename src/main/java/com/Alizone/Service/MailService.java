@@ -33,11 +33,11 @@ public class MailService {
 	@Value("${mail.admin.address}")
 	private String adminMail;
 
+	@Value("${spring.mail.from}")
+	private String MAIL_FROM;
+
 	@Value("${mail.enabled:true}")
 	private boolean mailEnabled;
-
-	@Value("${MAIL_FROM}")
-	private String MAIL_FROM;
 
 	private final JavaMailSender mailSender;
 
