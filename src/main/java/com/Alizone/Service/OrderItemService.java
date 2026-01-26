@@ -175,7 +175,7 @@ public class OrderItemService implements IOrderItemService {
 		orderRepository.save(order);
 
 		
-		  mailService.sendCustomMail( user.getEmail(), "Ödeme Linki",
+		 mailService.sendCustomMail( user.getEmail(), "Ödeme Linki",
 		  "Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink );
 		 
 
