@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import com.Alizone.Entity.Address;
 import com.Alizone.Entity.Order;
 import com.Alizone.Entity.OrderItem;
+import com.Alizone.Entity.User;
 import com.Alizone.Enum.OrderStatus;
 
 @Service
@@ -237,6 +238,69 @@ public class MailService {
             </div>
         """.formatted(order.getId(), order.getSiparisdurumu());
     }
-	
+    public void sendCustomMail(String to, String subject, String content) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey);
+
+        Map<String, Object> body = Map.of(
+            "sender", Map.of(
+                "name", "Alizone",
+                "email", adminMail
+            ),
+            "to", List.of(
+                Map.of("email", to)
+            ),
+            "subject", subject,
+            "htmlContent", "<p>" + content + "</p>"
+        );
+
+        HttpEntity<Map<String, Object>> entity =
+                new HttpEntity<>(body, headers);
+
+        restTemplate.postForEntity(BREVO_URL, entity, String.class);
+    }
+    public void sendwelcomemail(User user) {
+
+        String html = """
+            <div style="font-family:Arial,sans-serif">
+                <h2>🎉 Alizone’a Hoş Geldiniz!</h2>
+                <p>Merhaba <b>%s</b>,</p>
+                <p>Hesabınız başarıyla oluşturuldu.</p>
+                <p>Artık Alizone üzerinden sipariş verebilir,
+                kampanyaları takip edebilirsiniz.</p>
+                <br/>
+                <p>💙 İyi alışverişler dileriz</p>
+                <p><b>Alizone Ekibi</b></p>
+            </div>
+        """.formatted(user.getIsim());
+
+        sendHtmlMail(
+            user.getEmail(),
+            "🎉 Alizone’a Hoş Geldiniz",
+            html
+        );
+    }
+    public void sendResetPasswordEmail(User user, String token) {
+
+        String resetLink =
+            "https://alizone-ecommerce.vercel.app/reset-password?token=" + token;
+
+        String html = """
+            <h2>🔐 Şifre Sıfırlama</h2>
+            <p>Merhaba <b>%s</b>,</p>
+            <p>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:</p>
+            <a href="%s">Şifremi Sıfırla</a>
+            <br/><br/>
+            <p>⏰ Bu link 15 dakika geçerlidir.</p>
+        """.formatted(user.getIsim(), resetLink);
+
+        sendHtmlMail(
+            user.getEmail(),
+            "🔐 Şifre Sıfırlama",
+            html
+        );
+    }
 
 }
