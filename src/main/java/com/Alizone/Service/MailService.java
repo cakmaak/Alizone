@@ -57,6 +57,7 @@ public class MailService {
 	public void sendwelcomemail(User user) {
 
 		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom(MAIL_FROM);
 		message.setTo(user.getEmail());
 		message.setSubject("Alizone Klima’ya Hoşgeldiniz 🌬️");
 		message.setText("Merhaba " + user.getIsim() + "\n\nAlizone Klima ailesine hoşgeldiniz.");
@@ -65,7 +66,7 @@ public class MailService {
 
 	public void sendResetPasswordEmail(User user, String token) {
 
-		String resetLink = "http://localhost:5173/reset-password?token=" + token;
+		String resetLink = "https://alizone-ecommerce.vercel.app/reset-password?token=" + token;
 
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(user.getEmail());
@@ -93,7 +94,7 @@ public class MailService {
             mailSender.send(message);
             System.out.println("Mail gönderildi: " + to);
         } catch (MessagingException e) {
-            e.printStackTrace();
+        	log.error("MAIL_SEND_FAILED", e);
             System.out.println("Mail gönderilemedi: " + e.getMessage());
         }
     }
