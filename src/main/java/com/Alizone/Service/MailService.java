@@ -34,12 +34,6 @@ public class MailService {
 	@Value("${mail.from}")
 	private String mailFrom;
 	
-	
-	
-	@Value("${MAIL_FROM}")
-	private String MAIL_FROM;
-
-
 
 	
 
@@ -109,7 +103,7 @@ public class MailService {
 	    Map<String, Object> payload = new HashMap<>();
 	    payload.put("format", "json");
 	    payload.put("api_key", selzyApiKey);
-	    payload.put("from", MAIL_FROM);
+	    payload.put("from", mailFrom);
 	    payload.put("to", to);
 	    payload.put("subject", subject);
 	    payload.put("body", html);
