@@ -48,6 +48,11 @@ public class MailService {
        ========================================================= */
 
     public void sendHtmlMail(String to, String subject, String html) {
+    	
+    	if (brevoApiKey == null || brevoApiKey.isBlank()) {
+    	    log.warn("BREVO_API_KEY missing, mail skipped");
+    	    return;
+    	}
 
         if (!mailEnabled) {
             log.info("[MAIL DISABLED] to={} subject={}", to, subject);
