@@ -130,7 +130,7 @@ public class OrderController implements IOrderController{
 
 	     Order order = orderCancelService.cancelOrder(orderId, ip, ua);
 
-	     mailService.sendOrderCancelledMails(order);
+	     //mailService.sendOrderCancelledMails(order);
 
 	     return ResponseEntity.ok(Map.of(
 	         "success", true,

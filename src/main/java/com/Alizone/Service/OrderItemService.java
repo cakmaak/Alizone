@@ -271,9 +271,9 @@ public class OrderItemService implements IOrderItemService {
 
 		
 		try {
-			String mailBody = mailService.buildShippedMail(order);
+			//String mailBody = mailService.buildShippedMail(order);
 
-			mailService.sendHtmlMail(order.getUser().getEmail(), "📦 Siparişiniz Kargoya Verildi", mailBody);
+			//mailService.sendHtmlMail(order.getUser().getEmail(), "📦 Siparişiniz Kargoya Verildi", mailBody);
 		} 
 
 			catch (Exception e) {

@@ -50,11 +50,11 @@ public class CancelExpiredOrders {
 
             //📩 KULLANICIYA MAIL
             try {
-                mailService.sendHtmlMail(
-                    order.getUser().getEmail(),
-                    "❌ Siparişiniz İptal Edildi",
-                    mailService.buildOrderCancelledMail(order)
-                );
+                //mailService.sendHtmlMail(
+                    //order.getUser().getEmail(),
+                   // "❌ Siparişiniz İptal Edildi"
+                   // mailService.buildOrderCancelledMail(order)
+                //);
             } catch (Exception e) {
                 // ❌ mail gitmezse sistem çökmesin
                 e.printStackTrace();
