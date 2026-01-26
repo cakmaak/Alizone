@@ -4,9 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
+import org.apache.logging.log4j.message.SimpleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,26 +25,23 @@ import com.Alizone.Enum.OrderStatus;
 @Service
 public class MailService {
 
-	@Value("${mail.admin.address}")
+	@Value("${mail.admin}")
 	private String adminMail;
 
-	@Value("${mail.enabled:true}")
-	private boolean mailEnabled;
-	
-	@Value("${mail.SELZY_API_KEY}")
-	private String selzyApıkey;
+	@Value("${selzy.api.key}")
+	private String selzyApiKey;
+
+	@Value("${mail.from}")
+	private String mailFrom;
 	
 	
 	
 	@Value("${MAIL_FROM}")
 	private String MAIL_FROM;
 
-	private final JavaMailSender mailSender;
 
-	@Autowired
-	public MailService(JavaMailSender mailSender) {
-		this.mailSender = mailSender;
-	}
+
+	
 
 	private static final Logger log = LoggerFactory.getLogger(MailService.class);
 
@@ -60,24 +52,49 @@ public class MailService {
 
 	public void sendwelcomemail(User user) {
 
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(user.getEmail());
-		message.setSubject("Alizone Klima’ya Hoşgeldiniz 🌬️");
-		message.setText("Merhaba " + user.getIsim() + "\n\nAlizone Klima ailesine hoşgeldiniz.");
-		mailSender.send(message);
+	    String subject = "Alizone Klima’ya Hoşgeldiniz 🌬️";
+	    String body =
+	            "Merhaba " + user.getIsim() +
+	            "\n\nAlizone Klima ailesine hoşgeldiniz.";
+
+	    sendViaSelzy(user.getEmail(), subject, body);
 	}
 
 	public void sendResetPasswordEmail(User user, String token) {
 
-		String resetLink = "http://localhost:5173/reset-password?token=" + token;
+	    String resetLink = "https://alizone-ecommerce.vercel.app/reset-password?token=" + token;
 
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(user.getEmail());
-		message.setSubject("Şifre Sıfırlama");
-		message.setText(
-				"Şifrenizi sıfırlamak için linke tıklayın:\n" + resetLink + "\n\nBu link 15 dakika geçerlidir.");
+	    String subject = "Şifre Sıfırlama";
+	    String body =
+	            "Şifrenizi sıfırlamak için linke tıklayın:\n" +
+	            resetLink +
+	            "\n\nBu link 15 dakika geçerlidir.";
 
-		mailSender.send(message);
+	    sendViaSelzy(user.getEmail(), subject, body);
+	}
+	private void sendViaSelzy(String to, String subject, String body) {
+
+	    String url = "https://api.selzy.com/en/api/sendEmail";
+
+	    Map<String, Object> payload = new HashMap<>();
+	    payload.put("format", "json");
+	    payload.put("api_key", selzyApiKey);
+	    payload.put("from", mailFrom);
+	    payload.put("to", to);
+	    payload.put("subject", subject);
+	    payload.put("body", body);
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    headers.setAcceptCharset(java.util.List.of(StandardCharsets.UTF_8));
+
+	    HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+	    try {
+	        new RestTemplate().postForEntity(url, request, String.class);
+	    } catch (Exception e) {
+	        log.error("SELZY_MAIL_FAILED to={} subject={}", to, subject, e);
+	    }
 	}
 
 	/*
@@ -91,7 +108,7 @@ public class MailService {
 
 	    Map<String, Object> payload = new HashMap<>();
 	    payload.put("format", "json");
-	    payload.put("api_key", selzyApıkey);
+	    payload.put("api_key", selzyApiKey);
 	    payload.put("from", MAIL_FROM);
 	    payload.put("to", to);
 	    payload.put("subject", subject);
@@ -276,7 +293,7 @@ public class MailService {
 	 * --------------------------------------------------
 	 */
 
-	public void sendOrderMails(Order order) throws MessagingException {
+	public void sendOrderMails(Order order)  {
 
 		// MÜŞTERİ
 		sendHtmlMail(order.getUser().getEmail(), "🛒 Siparişiniz Alındı", buildCustomerOrderMail(order));
@@ -286,11 +303,7 @@ public class MailService {
 	}
 
 	public void sendCustomMail(String to, String subject, String body) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(to);
-		message.setSubject(subject);
-		message.setText(body);
-		mailSender.send(message);
+	    sendViaSelzy(to, subject, body);
 	}
 
 	public String buildShippedMail(Order order) {
