@@ -2,6 +2,7 @@ package com.Alizone.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.message.SimpleMessage;
@@ -28,8 +29,8 @@ public class MailService {
 	@Value("${mail.admin}")
 	private String adminMail;
 
-	@Value("${selzy.api.key}")
-	private String selzyApiKey;
+	@Value("${resend.api.key}")
+	private String resendapikey;
 
 	@Value("${mail.from}")
 	private String mailFrom;
@@ -51,7 +52,7 @@ public class MailService {
 	            "Merhaba " + user.getIsim() +
 	            "\n\nAlizone Klima ailesine hoşgeldiniz.";
 
-	    sendViaSelzy(user.getEmail(), subject, body);
+	    sendHtmlMail(user.getEmail(), subject, "<p>" + body.replace("\n","<br>") + "</p>");
 	}
 
 	public void sendResetPasswordEmail(User user, String token) {
@@ -64,32 +65,9 @@ public class MailService {
 	            resetLink +
 	            "\n\nBu link 15 dakika geçerlidir.";
 
-	    sendViaSelzy(user.getEmail(), subject, body);
+	    sendHtmlMail(user.getEmail(), subject, "<p>" + body.replace("\n","<br>") + "</p>");
 	}
-	private void sendViaSelzy(String to, String subject, String body) {
-
-	    String url = "https://api.selzy.com/en/api/sendEmail";
-
-	    Map<String, Object> payload = new HashMap<>();
-	    payload.put("format", "json");
-	    payload.put("api_key", selzyApiKey);
-	    payload.put("from", mailFrom);
-	    payload.put("to", to);
-	    payload.put("subject", subject);
-	    payload.put("body", body);
-
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.APPLICATION_JSON);
-	    headers.setAcceptCharset(java.util.List.of(StandardCharsets.UTF_8));
-
-	    HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-
-	    try {
-	        new RestTemplate().postForEntity(url, request, String.class);
-	    } catch (Exception e) {
-	        log.error("SELZY_MAIL_FAILED to={} subject={}", to, subject, e);
-	    }
-	}
+	
 
 	/*
 	 * ------------------------------------------------- HTML MAIL GÖNDERİM
@@ -97,27 +75,24 @@ public class MailService {
 	 */
 
 	public void sendHtmlMail(String to, String subject, String html) {
-
-	    String url = "https://api.selzy.com/en/api/sendEmail";
+	    String url = "https://api.resend.com/emails";
 
 	    Map<String, Object> payload = new HashMap<>();
-	    payload.put("format", "json");
-	    payload.put("api_key", selzyApiKey);
-	    payload.put("from", mailFrom);
-	    payload.put("to", to);
+	    payload.put("from", "Alizone <" + mailFrom + ">");
+	    payload.put("to", List.of(to));
 	    payload.put("subject", subject);
-	    payload.put("body", html);
+	    payload.put("html", html);
 
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.setContentType(MediaType.APPLICATION_JSON);
-	    headers.setAcceptCharset(java.util.List.of(StandardCharsets.UTF_8));
+	    headers.setBearerAuth(resendapikey);
 
 	    HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
 	    try {
 	        RestTemplate restTemplate = new RestTemplate();
 	        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-	        log.info("Selzy mail gönderildi: {}", response.getBody());
+	        log.info("Resend mail gönderildi: {}", response.getBody());
 	    } catch (Exception e) {
 	        log.error("MAIL_SEND_FAILED | to={} subject={}", to, subject, e);
 	    }
@@ -296,10 +271,7 @@ public class MailService {
 		sendHtmlMail(adminMail, "📦 Yeni Sipariş Geldi", buildAdminOrderMail(order));
 	}
 
-	public void sendCustomMail(String to, String subject, String body) {
-	    sendViaSelzy(to, subject, body);
-	}
-
+	
 	public String buildShippedMail(Order order) {
 
 		Address a = order.getTeslimatAdresi();
