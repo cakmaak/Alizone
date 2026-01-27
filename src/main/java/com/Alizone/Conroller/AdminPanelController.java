@@ -158,6 +158,14 @@ public class AdminPanelController implements IAdminPanelController {
 		return productService.setProductteklifilesatilir(id);
 		
 	}
+
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/setkategori/{id}")
+	@Override
+	public String setcategory(@PathVariable Long id) {
+		
+		return productService.setcategory(id);
+	}
 		
 	}
 

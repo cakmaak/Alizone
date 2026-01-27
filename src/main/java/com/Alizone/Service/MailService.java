@@ -47,6 +47,10 @@ public class MailService {
     /* =========================================================
        CORE SEND METHOD (BREVO)
        ========================================================= */
+    
+    private String safe(String value) {
+        return value == null ? "" : value;
+    }
 
     public void sendHtmlMail(String to, String subject, String html) {
     	
@@ -249,57 +253,44 @@ public class MailService {
     public String buildAdminOrderMail(Order order) {
 
         Address a = order.getTeslimatAdresi();
-        StringBuilder productsHtml = new StringBuilder();
 
-        for (OrderItem item : order.getItemlist()) {
+        String addressHtml = """
+            <h3>📍 Teslimat Bilgileri</h3>
+            <p>
+              <b>Alıcı:</b> %s<br/>
+              %s %s<br/>
+              %s / %s<br/>
+              %s<br/>
+              <b>Tel:</b> %s
+            </p>
 
-            StringBuilder imagesHtml = new StringBuilder();
+            <hr/>
 
-            // 🔥 ÜRÜNÜN TÜM FOTOĞRAFLARI
-            for (String imageUrl : item.getProduct().getResimler()) {
-                imagesHtml.append("""
-                    <tr>
-                      <td style="padding:12px 0">
-                        <img src="%s"
-                             style="
-                               width:100%%;
-                               max-height:320px;
-                               object-fit:contain;
-                               border-radius:14px;
-                               border:1px solid #ddd;
-                               background:#fafafa;
-                             "/>
-                      </td>
-                    </tr>
-                """.formatted(imageUrl));
-            }
+            <h3>🧾 Fatura Bilgileri</h3>
+            <p>
+              <b>Fatura Tipi:</b> %s<br/>
+              <b>Ad Soyad:</b> %s<br/>
+              <b>TC Kimlik:</b> %s<br/>
+              <b>Firma:</b> %s<br/>
+              <b>Vergi No:</b> %s<br/>
+              <b>Vergi Dairesi:</b> %s
+            </p>
+        """.formatted(
+                safe(a.getAliciAdiSoyadi()),
+                safe(a.getAdresSatir1()),
+                safe(a.getAdresSatir2()),
+                safe(a.getIlce()),
+                safe(a.getSehir()),
+                safe(a.getPostaKodu()),
+                safe(a.getTelefon()),
 
-            productsHtml.append("""
-            		<table width="100%%" style="
-            		  margin-bottom:30px;
-            		  background:#ffffff;
-            		  border-radius:16px;
-            		  box-shadow:0 10px 25px rgba(0,0,0,0.1);
-            		  padding:20px;
-            		">
-            		  %s
-            		  <tr>
-            		    <td>
-            		      <h3 style="margin:10px 0;color:#020617">%s</h3>
-            		      <p>Adet: <b>%d</b></p>
-            		      <p style="font-size:18px;color:#2563eb">
-            		        Ürün Toplamı: <b>%.2f ₺</b>
-            		      </p>
-            		    </td>
-            		  </tr>
-            		</table>
-            		""".formatted(
-            		    imagesHtml,
-            		    item.getProduct().getIsim(),
-            		    item.getAdet(),
-            		    item.getToplamfiyat()
-            		));
-        }
+                safe(a.getFaturaTipi()),
+                safe(a.getFaturaAdiSoyadi()),
+                safe(a.getTcKimlikNo()),
+                safe(a.getFirmaAdi()),
+                safe(a.getVergiNo()),
+                safe(a.getVergiDairesi())
+        );
 
         return """
             <div style="font-family:Arial;max-width:600px;margin:auto">
@@ -308,18 +299,7 @@ public class MailService {
 
             %s
 
-            <hr>
-
-            <p><b>Sipariş No:</b> #%d</p>
-            <p><b>Müşteri:</b> %s (%s)</p>
-
-            <p>
-                %s<br>
-                %s / %s<br>
-                %s
-            </p>
-
-            <hr>
+            <hr/>
 
             <p style="font-size:18px">
                 <b>🧾 Sepet Toplamı:</b> %.2f ₺
@@ -327,17 +307,11 @@ public class MailService {
 
             </div>
         """.formatted(
-                productsHtml.toString(),
-                order.getId(),
-                order.getUser().getIsim(),
-                order.getUser().getEmail(),
-                a.getAdresSatir1(),
-                a.getIlce(),
-                a.getSehir(),
-                a.getTelefon(),
+                addressHtml,
                 order.getToplamtutar()
         );
     }
+
 
     public String buildShippedMail(Order order) {
         return """

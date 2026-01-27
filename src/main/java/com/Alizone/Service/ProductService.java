@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.Alizone.Dto.DtoProduct;
 import com.Alizone.Entity.Product;
+import com.Alizone.Enum.CATEGORY;
 import com.Alizone.Exception.BusinessException;
 import com.Alizone.Repository.ProductRepository;
 
@@ -213,6 +214,18 @@ public class ProductService implements IProductService {
 		product.setTeklifilesatilir(false);
 		productRepository.save(product);
 		return "başarıyla güncellendi refresh atarak kontrol edebilirsiniz";
+	}
+
+	@Override
+	public String setcategory(Long id) {
+		Optional<Product> optional=productRepository.findById(id);
+		Product product=optional.get();
+		product.setKategori(CATEGORY.TICARI);
+		productRepository.save(product);
+		return "işleminiz başarıyla gerçekleşti";
+		
+		
+		
 	}
 	}
 
