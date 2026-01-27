@@ -12,7 +12,8 @@ public class WebCorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173",
                 		"https://alizone-ecommerce.vercel.app",
-                		"https://alizone-ecommerce-2a9b.vercel.app")
+                		"https://alizoneecommerce.onrender.com"
+                		)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
