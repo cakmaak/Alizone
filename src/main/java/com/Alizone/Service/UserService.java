@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+
 
 import com.Alizone.Dto.SignupRequest;
 import com.Alizone.Entity.Basket;
@@ -16,6 +16,8 @@ import com.Alizone.Enum.ROL;
 import com.Alizone.Exception.BusinessException;
 import com.Alizone.Repository.BasketRepository;
 import com.Alizone.Repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -33,6 +35,7 @@ public class UserService implements	IUserService {
 	@Autowired
 	private BasketRepository basketRepository;
 
+	@Transactional
 	@Override
 	public User signupRequest(SignupRequest signupRequest) {
 	    if (userRepository.existsByEmail(signupRequest.getEmail())) {
