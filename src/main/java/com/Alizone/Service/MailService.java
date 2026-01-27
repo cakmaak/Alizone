@@ -138,49 +138,104 @@ public class MailService {
         	String imageUrl = item.getProduct().getResimler().isEmpty()
         	        ? "https://alizone.com/no-image.png"
         	        : item.getProduct().getResimler().get(0);
-            itemsHtml.append("""
-                <tr>
-                  <td style="padding:10px">
-                    <img src="%s" width="80" style="border-radius:8px"/>
-                  </td>
-                  <td>
-                    <b>%s</b><br/>
-                    Adet: %d
-                  </td>
-                  <td align="right">
-                    %.2f ₺
-                  </td>
-                </tr>
-            """.formatted(
-                imageUrl,   // 🔥 önemli
-                item.getProduct().getIsim(),
-                item.getAdet(),
-                item.getToplamfiyat()
-            ));
+        	itemsHtml.append("""
+        			<tr>
+        			  <td style="padding:20px 0">
+        			    <table width="100%%" style="
+        			        border:1px solid #eee;
+        			        border-radius:14px;
+        			        background:#ffffff;
+        			        box-shadow:0 6px 18px rgba(0,0,0,0.08);
+        			        overflow:hidden;
+        			    ">
+        			      <tr>
+        			        <td style="padding:15px">
+        			          <img src="%s"
+        			               style="
+        			                 width:100%%;
+        			                 max-height:280px;
+        			                 object-fit:contain;
+        			                 border-radius:12px;
+        			                 background:#f7f7f7;
+        			               "/>
+        			        </td>
+        			      </tr>
+        			      <tr>
+        			        <td style="padding:15px">
+        			          <h3 style="margin:0;color:#0f172a">%s</h3>
+        			          <p style="margin:6px 0;color:#475569">
+        			            Adet: <b>%d</b>
+        			          </p>
+        			          <p style="
+        			            margin:10px 0 0;
+        			            font-size:18px;
+        			            color:#16a34a;
+        			            font-weight:bold;
+        			          ">
+        			            %.2f ₺
+        			          </p>
+        			        </td>
+        			      </tr>
+        			    </table>
+        			  </td>
+        			</tr>
+        			""".formatted(
+        			  imageUrl,
+        			  item.getProduct().getIsim(),
+        			  item.getAdet(),
+        			  item.getToplamfiyat()
+        			));
         }
 
         return """
-        <div style="font-family:Arial;max-width:600px;margin:auto">
-          <h2>🛒 Siparişiniz Alındı</h2>
-          <p>Sipariş No: <b>#%d</b></p>
+        		<div style="font-family:Arial;max-width:600px;margin:auto">
 
-          <table width="100%%" style="border-collapse:collapse">
-            %s
-          </table>
+        		<!-- HEADER -->
+        		<div style="
+        		  background:linear-gradient(135deg,#2563eb,#22c55e);
+        		  padding:25px;
+        		  border-radius:18px;
+        		  color:white;
+        		  text-align:center;
+        		  margin-bottom:25px;
+        		">
+        		  <h1 style="margin:0">🛒 Alizone Klima</h1>
+        		  <p style="margin:8px 0 0;font-size:14px">
+        		    Premium Klima & Soğutma Sistemleri
+        		  </p>
+        		</div>
 
-          <hr/>
-          <p><b>Toplam:</b> %.2f ₺</p>
+        		<h2>🛒 Siparişiniz Alındı</h2>
+        		<p>Sipariş No: <b>#%d</b></p>
 
-          <h4>📍 Teslimat Adresi</h4>
-          <p>
-            %s<br/>
-            %s / %s<br/>
-            %s
-          </p>
+        		<table width="100%%">
+        		  %s
+        		</table>
 
-          <p style="color:#888">Alizone Klima 💙</p>
-        </div>
-        """.formatted(
+        		<hr/>
+
+        		<p style="font-size:18px">
+        		  <b>Toplam:</b> %.2f ₺
+        		</p>
+
+        		<h4>📍 Teslimat Adresi</h4>
+        		<p>
+        		  %s<br/>
+        		  %s / %s<br/>
+        		  %s
+        		</p>
+
+        		<!-- FOOTER -->
+        		<hr style="margin:30px 0"/>
+
+        		<p style="text-align:center;color:#64748b;font-size:13px">
+        		  🌐 <a href="https://alizoneklima.com">www.alizoneklima.com</a><br/>
+        		  📞 0554 230 9563<br/>
+        		  📍 Ankara Bosch Sakura Klima Yetkili Bayi
+        		</p>
+
+        		</div>
+        		""".formatted(
             order.getId(),
             itemsHtml,
             order.getToplamtutar(),
@@ -203,28 +258,47 @@ public class MailService {
             // 🔥 ÜRÜNÜN TÜM FOTOĞRAFLARI
             for (String imageUrl : item.getProduct().getResimler()) {
                 imagesHtml.append("""
-                    <img src="%s"
-                         style="width:90px;height:auto;border-radius:6px;margin-right:6px"/>
+                    <tr>
+                      <td style="padding:12px 0">
+                        <img src="%s"
+                             style="
+                               width:100%%;
+                               max-height:320px;
+                               object-fit:contain;
+                               border-radius:14px;
+                               border:1px solid #ddd;
+                               background:#fafafa;
+                             "/>
+                      </td>
+                    </tr>
                 """.formatted(imageUrl));
             }
 
             productsHtml.append("""
-                <div style="border-bottom:1px solid #eee;padding:10px 0">
-                    
-                    <div style="margin-bottom:8px">
-                        %s
-                    </div>
-
-                    <b>%s</b><br>
-                    Adet: %d<br>
-                    <b>Ürün Toplamı:</b> %.2f ₺
-                </div>
-            """.formatted(
-                    imagesHtml.toString(),
-                    item.getProduct().getIsim(),
-                    item.getAdet(),
-                    item.getToplamfiyat()
-            ));
+            		<table width="100%%" style="
+            		  margin-bottom:30px;
+            		  background:#ffffff;
+            		  border-radius:16px;
+            		  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+            		  padding:20px;
+            		">
+            		  %s
+            		  <tr>
+            		    <td>
+            		      <h3 style="margin:10px 0;color:#020617">%s</h3>
+            		      <p>Adet: <b>%d</b></p>
+            		      <p style="font-size:18px;color:#2563eb">
+            		        Ürün Toplamı: <b>%.2f ₺</b>
+            		      </p>
+            		    </td>
+            		  </tr>
+            		</table>
+            		""".formatted(
+            		    imagesHtml,
+            		    item.getProduct().getIsim(),
+            		    item.getAdet(),
+            		    item.getToplamfiyat()
+            		));
         }
 
         return """
