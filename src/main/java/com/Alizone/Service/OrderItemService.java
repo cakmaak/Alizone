@@ -194,28 +194,38 @@ public class OrderItemService implements IOrderItemService {
 	        order.setSiparisdurumu(OrderStatus.PAID);
 	        order.setBankPaymentId(paymentId);
 
-	        // Stok güncelle
+	       
 	        for (OrderItem item : order.getItemlist()) {
 	            Product product = item.getProduct();
 	            int yeniStok = product.getStokAdeti() - item.getAdet();
-	            if (yeniStok < 0) throw new BusinessException(product.getIsim() + " stok yetersiz!");
+	            if (yeniStok < 0)
+	                throw new BusinessException(product.getIsim() + " stok yetersiz!");
+
 	            product.setStokAdeti(yeniStok);
 	            product.setReservedStock(product.getReservedStock() - item.getAdet());
 	        }
 
-	        // Sepet güncelle
+	       
 	        Basket basket = basketRepository.findByUser(order.getUser())
 	                .orElseThrow(() -> new BusinessException("Sepet bulunamadı"));
-	        for (BasketItem bi : basket.getBasketItems()) bi.setActive(false);
-	        basketRepository.saveAndFlush(basket);
 
+	        for (BasketItem bi : basket.getBasketItems())
+	            bi.setActive(false);
+
+	        basketRepository.save(basket);
+
+	        
 	        orderRepository.save(order);
+
+	        // 🔥🔥🔥 HER ŞEY OK → MAIL
+	        mailService.sendOrderMails(order);
+
 	    } else {
-	        // Ödeme başarısız → rezervleri geri al
 	        for (OrderItem item : order.getItemlist()) {
 	            Product product = item.getProduct();
 	            product.setReservedStock(product.getReservedStock() - item.getAdet());
 	        }
+
 	        order.setSiparisdurumu(OrderStatus.CANCELLED);
 	        orderRepository.save(order);
 	    }
