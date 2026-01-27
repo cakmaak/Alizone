@@ -130,45 +130,60 @@ public class MailService {
     public String buildCustomerOrderMail(Order order) {
 
         Address a = order.getTeslimatAdresi();
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("""
-            <div style="font-family:Arial;max-width:600px;margin:auto">
-            <h2>🛒 Siparişiniz Alındı</h2>
-            <p>Sipariş No: <b>#%d</b></p>
-            <hr>
-        """.formatted(order.getId()));
+        StringBuilder itemsHtml = new StringBuilder();
 
         for (OrderItem item : order.getItemlist()) {
-            sb.append("""
-                <p>
-                    <b>%s</b><br>
-                    Adet: %d<br>
-                    Tutar: %.2f ₺
-                </p>
+            itemsHtml.append("""
+                <tr>
+                  <td style="padding:10px">
+                    <img src="%s" width="80" style="border-radius:8px"/>
+                  </td>
+                  <td>
+                    <b>%s</b><br/>
+                    Adet: %d
+                  </td>
+                  <td align="right">
+                    %.2f ₺
+                  </td>
+                </tr>
             """.formatted(
-                    item.getProduct().getIsim(),
-                    item.getAdet(),
-                    item.getToplamfiyat()
+                item.getProduct().getResimler(),   // 🔥 önemli
+                item.getProduct().getIsim(),
+                item.getAdet(),
+                item.getToplamfiyat()
             ));
         }
 
-        sb.append("""
-            <hr>
-            <p>
-                %s<br>
-                %s / %s<br>
-                %s
-            </p>
-            </div>
-        """.formatted(
-                a.getAdresSatir1(),
-                a.getIlce(),
-                a.getSehir(),
-                a.getTelefon()
-        ));
+        return """
+        <div style="font-family:Arial;max-width:600px;margin:auto">
+          <h2>🛒 Siparişiniz Alındı</h2>
+          <p>Sipariş No: <b>#%d</b></p>
 
-        return sb.toString();
+          <table width="100%%" style="border-collapse:collapse">
+            %s
+          </table>
+
+          <hr/>
+          <p><b>Toplam:</b> %.2f ₺</p>
+
+          <h4>📍 Teslimat Adresi</h4>
+          <p>
+            %s<br/>
+            %s / %s<br/>
+            %s
+          </p>
+
+          <p style="color:#888">Alizone Klima 💙</p>
+        </div>
+        """.formatted(
+            order.getId(),
+            itemsHtml,
+            order.getToplamtutar(),
+            a.getAdresSatir1(),
+            a.getIlce(),
+            a.getSehir(),
+            a.getTelefon()
+        );
     }
 
     public String buildAdminOrderMail(Order order) {
@@ -235,13 +250,63 @@ public class MailService {
     }
 
     public String buildAdminOrderCancelledMail(Order order) {
+
+        StringBuilder itemsHtml = new StringBuilder();
+
+        for (OrderItem item : order.getItemlist()) {
+            itemsHtml.append("""
+                <tr>
+                    <td style="padding:8px 0">
+                        <b>%s</b><br/>
+                        Adet: %d
+                    </td>
+                    <td align="right">
+                        %.2f ₺
+                    </td>
+                </tr>
+            """.formatted(
+                item.getProduct().getIsim(),
+                item.getAdet(),
+                item.getToplamfiyat()
+            ));
+        }
+
         return """
-            <div style="font-family:Arial;max-width:600px;margin:auto">
-            <h2>⚠️ Sipariş İptali</h2>
-            <p>Sipariş: #%d</p>
-            <p>Durum: %s</p>
-            </div>
-        """.formatted(order.getId(), order.getSiparisdurumu());
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+            <h2 style="color:#d9534f">⚠️ Sipariş İptali</h2>
+
+            <p><b>Sipariş No:</b> #%d</p>
+            <p><b>Durum:</b> %s</p>
+
+            <hr/>
+
+            <p><b>Müşteri:</b><br/>
+               %s<br/>
+               %s
+            </p>
+
+            <table width="100%%" style="border-collapse:collapse">
+                %s
+            </table>
+
+            <hr/>
+
+            <p style="font-size:16px">
+                <b>Toplam Tutar:</b> %.2f ₺
+            </p>
+
+            <p style="color:#888;font-size:12px">
+                Bu sipariş müşteri tarafından iptal edilmiştir.
+            </p>
+        </div>
+        """.formatted(
+            order.getId(),
+            order.getSiparisdurumu(),
+            order.getUser().getIsim(),
+            order.getUser().getEmail(),
+            itemsHtml,
+            order.getToplamtutar()
+        );
     }
     public void sendCustomMail(String to, String subject, String content) {
 

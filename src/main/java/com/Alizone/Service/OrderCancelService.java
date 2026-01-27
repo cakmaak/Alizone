@@ -70,6 +70,7 @@ public class OrderCancelService {
     private void cancelPendingOrder(Order order,String ip,String ua) {
 
         order.setSiparisdurumu(OrderStatus.CANCELLED);
+        
 
         paymentAuditLogger.log(
                 PaymentEvent.ORDER_CANCELLED,
@@ -79,6 +80,7 @@ public class OrderCancelService {
                 ip,
                 ua
             );
+        mailService.buildOrderCancelledMail(order);
         }
     
     
@@ -104,6 +106,7 @@ public class OrderCancelService {
                 ip,
                 userAgent
             );
+        mailService.sendOrderCancelledMails(order);
     }
 
     private User getCurrentUser() {
