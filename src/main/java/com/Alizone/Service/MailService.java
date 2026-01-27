@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import com.Alizone.Entity.Address;
 import com.Alizone.Entity.Order;
 import com.Alizone.Entity.OrderItem;
+import com.Alizone.Entity.Product;
 import com.Alizone.Entity.User;
 import com.Alizone.Enum.OrderStatus;
 
@@ -132,7 +133,11 @@ public class MailService {
         Address a = order.getTeslimatAdresi();
         StringBuilder itemsHtml = new StringBuilder();
 
+        
         for (OrderItem item : order.getItemlist()) {
+        	String imageUrl = item.getProduct().getResimler().isEmpty()
+        	        ? "https://alizone.com/no-image.png"
+        	        : item.getProduct().getResimler().get(0);
             itemsHtml.append("""
                 <tr>
                   <td style="padding:10px">
@@ -147,7 +152,7 @@ public class MailService {
                   </td>
                 </tr>
             """.formatted(
-                item.getProduct().getResimler(),   // 🔥 önemli
+                imageUrl,   // 🔥 önemli
                 item.getProduct().getIsim(),
                 item.getAdet(),
                 item.getToplamfiyat()
@@ -189,15 +194,50 @@ public class MailService {
     public String buildAdminOrderMail(Order order) {
 
         Address a = order.getTeslimatAdresi();
+        StringBuilder productsHtml = new StringBuilder();
+
+        for (OrderItem item : order.getItemlist()) {
+
+            StringBuilder imagesHtml = new StringBuilder();
+
+            // 🔥 ÜRÜNÜN TÜM FOTOĞRAFLARI
+            for (String imageUrl : item.getProduct().getResimler()) {
+                imagesHtml.append("""
+                    <img src="%s"
+                         style="width:90px;height:auto;border-radius:6px;margin-right:6px"/>
+                """.formatted(imageUrl));
+            }
+
+            productsHtml.append("""
+                <div style="border-bottom:1px solid #eee;padding:10px 0">
+                    
+                    <div style="margin-bottom:8px">
+                        %s
+                    </div>
+
+                    <b>%s</b><br>
+                    Adet: %d<br>
+                    <b>Ürün Toplamı:</b> %.2f ₺
+                </div>
+            """.formatted(
+                    imagesHtml.toString(),
+                    item.getProduct().getIsim(),
+                    item.getAdet(),
+                    item.getToplamfiyat()
+            ));
+        }
 
         return """
             <div style="font-family:Arial;max-width:600px;margin:auto">
+
             <h2>📦 Yeni Sipariş</h2>
 
-            <p><b>Sipariş:</b> #%d</p>
-            <p><b>Müşteri:</b> %s (%s)</p>
+            %s
 
             <hr>
+
+            <p><b>Sipariş No:</b> #%d</p>
+            <p><b>Müşteri:</b> %s (%s)</p>
 
             <p>
                 %s<br>
@@ -205,9 +245,15 @@ public class MailService {
                 %s
             </p>
 
-            <p><b>Toplam:</b> %.2f ₺</p>
+            <hr>
+
+            <p style="font-size:18px">
+                <b>🧾 Sepet Toplamı:</b> %.2f ₺
+            </p>
+
             </div>
         """.formatted(
+                productsHtml.toString(),
                 order.getId(),
                 order.getUser().getIsim(),
                 order.getUser().getEmail(),

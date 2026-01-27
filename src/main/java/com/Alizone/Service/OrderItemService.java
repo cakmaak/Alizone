@@ -31,7 +31,6 @@ import com.Alizone.Payment.PaymentEvent;
 import com.Alizone.Repository.BasketRepository;
 import com.Alizone.Repository.OrderRepository;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +67,7 @@ public class OrderItemService implements IOrderItemService {
 	@Override
 	@Transactional
 	public String saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
-		
+
 		if (request.getContractsAccepted() == null || !request.getContractsAccepted()) {
 			throw new BusinessException("Mesafeli satış sözleşmesi ve KVKK onaylanmadan sipariş verilemez.");
 		}
@@ -154,16 +153,8 @@ public class OrderItemService implements IOrderItemService {
 
 		order.setClientIp(clientIp);
 
-		paymentAuditLogger.log(
-		    PaymentEvent.CONTRACT_ACCEPTED,
-		    order.getId(),
-		    user.getId(),
-		    "contractsAccepted=true",
-		    clientIp,
-		    userAgent
-		);
-
-	
+		paymentAuditLogger.log(PaymentEvent.CONTRACT_ACCEPTED, order.getId(), user.getId(), "contractsAccepted=true",
+				clientIp, userAgent);
 
 		String fakepaymentlink = "https://fakebank.com/pay?orderId=" + order.getId() + "&amount="
 				+ toplamTutar.toPlainString();
@@ -174,61 +165,56 @@ public class OrderItemService implements IOrderItemService {
 		order.setPaymentProvider("FAKEBANK");
 		orderRepository.save(order);
 
-		
-		 mailService.sendCustomMail( user.getEmail(), "Ödeme Linki",
-		  "Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink );
-		 
+		mailService.sendCustomMail(user.getEmail(), "Ödeme Linki",
+				"Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink);
 
 		return fakepaymentlink;
 	}
-	
+
 	@Override
 	@Transactional
 	public void handlePaymentCallback(Long orderId, boolean success, String paymentId) {
-	    Order order = orderRepository.findById(orderId)
-	            .orElseThrow(() -> new BusinessException("Sipariş bulunamadı"));
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException("Sipariş bulunamadı"));
 
-	    if (order.getSiparisdurumu() == OrderStatus.PAID) return;
+		if (order.getSiparisdurumu() == OrderStatus.PAID)
+			return;
 
-	    if (success) {
-	        order.setSiparisdurumu(OrderStatus.PAID);
-	        order.setBankPaymentId(paymentId);
+		if (success) {
+			order.setSiparisdurumu(OrderStatus.PAID);
+			order.setBankPaymentId(paymentId);
 
-	       
-	        for (OrderItem item : order.getItemlist()) {
-	            Product product = item.getProduct();
-	            int yeniStok = product.getStokAdeti() - item.getAdet();
-	            if (yeniStok < 0)
-	                throw new BusinessException(product.getIsim() + " stok yetersiz!");
+			for (OrderItem item : order.getItemlist()) {
+				Product product = item.getProduct();
+				int yeniStok = product.getStokAdeti() - item.getAdet();
+				if (yeniStok < 0)
+					throw new BusinessException(product.getIsim() + " stok yetersiz!");
 
-	            product.setStokAdeti(yeniStok);
-	            product.setReservedStock(product.getReservedStock() - item.getAdet());
-	        }
+				product.setStokAdeti(yeniStok);
+				product.setReservedStock(product.getReservedStock() - item.getAdet());
+			}
 
-	       
-	        Basket basket = basketRepository.findByUser(order.getUser())
-	                .orElseThrow(() -> new BusinessException("Sepet bulunamadı"));
+			Basket basket = basketRepository.findByUser(order.getUser())
+					.orElseThrow(() -> new BusinessException("Sepet bulunamadı"));
 
-	        for (BasketItem bi : basket.getBasketItems())
-	            bi.setActive(false);
+			for (BasketItem bi : basket.getBasketItems())
+				bi.setActive(false);
 
-	        basketRepository.save(basket);
+			basketRepository.save(basket);
 
-	        
-	        orderRepository.save(order);
+			orderRepository.save(order);
 
-	        // 🔥🔥🔥 HER ŞEY OK → MAIL
-	        mailService.sendOrderMails(order);
+			mailService.sendOrderMails(order);
+			
 
-	    } else {
-	        for (OrderItem item : order.getItemlist()) {
-	            Product product = item.getProduct();
-	            product.setReservedStock(product.getReservedStock() - item.getAdet());
-	        }
+		} else {
+			for (OrderItem item : order.getItemlist()) {
+				Product product = item.getProduct();
+				product.setReservedStock(product.getReservedStock() - item.getAdet());
+			}
 
-	        order.setSiparisdurumu(OrderStatus.CANCELLED);
-	        orderRepository.save(order);
-	    }
+			order.setSiparisdurumu(OrderStatus.CANCELLED);
+			orderRepository.save(order);
+		}
 	}
 
 	@Override
@@ -272,29 +258,21 @@ public class OrderItemService implements IOrderItemService {
 			throw new BusinessException("Sadece ödenmiş sipariş kargoya verilebilir");
 		}
 
-		
 		order.setSiparisdurumu(OrderStatus.SHIPPED);
 		order.setKargotakipno(cargoTrackingNo);
 		order.setShippedAt(LocalDateTime.now());
 
 		orderRepository.save(order);
 
-		
 		try {
 			String mailBody = mailService.buildShippedMail(order);
 
 			mailService.sendHtmlMail(order.getUser().getEmail(), "📦 Siparişiniz Kargoya Verildi", mailBody);
-		} 
+		}
 
-			catch (Exception e) {
-			    adminLogger.error(
-			        "MAIL_SEND_FAILED | orderId={} | userId={}",
-			        order.getId(),
-			        order.getUser().getId(),
-			        e
-			    );
-			}
-		
+		catch (Exception e) {
+			adminLogger.error("MAIL_SEND_FAILED | orderId={} | userId={}", order.getId(), order.getUser().getId(), e);
+		}
 
 		return ResponseEntity.ok("Sipariş kargoya verildi");
 	}
@@ -324,10 +302,10 @@ public class OrderItemService implements IOrderItemService {
 	}
 
 	private String getClientIp(HttpServletRequest request) {
-	    String xf = request.getHeader("X-Forwarded-For");
-	    if (xf != null && !xf.isBlank()) {
-	        return xf.split(",")[0].trim();
-	    }
-	    return request.getRemoteAddr();
+		String xf = request.getHeader("X-Forwarded-For");
+		if (xf != null && !xf.isBlank()) {
+			return xf.split(",")[0].trim();
+		}
+		return request.getRemoteAddr();
 	}
 }
