@@ -25,6 +25,8 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 
 @Data
 @NoArgsConstructor
@@ -32,7 +34,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "orders",schema = "alizone")
 public class Order {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -60,7 +62,13 @@ public class Order {
 
 	@PrePersist
 	public void prePersist() {
-	    this.olusturmatarihi = LocalDateTime.now();
+	    // İstanbul saatine göre oluşturma tarihi
+	    this.olusturmatarihi = ZonedDateTime.now(ZoneId.of("Europe/Istanbul")).toLocalDateTime();
+	    
+	    // Eğer contractsAcceptedAt da set edilecekse, örn:
+	    if (this.contractsAccepted != null && this.contractsAccepted && this.contractsAcceptedAt == null) {
+	        this.contractsAcceptedAt = ZonedDateTime.now(ZoneId.of("Europe/Istanbul")).toLocalDateTime();
+	    }
 	}
 	
 	private Boolean contractsAccepted;

@@ -67,6 +67,9 @@ public class OrderItemService implements IOrderItemService {
 	@Override
 	@Transactional
 	public String saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
+		
+		String clientIp = getClientIp(httpRequest);
+		String userAgent = httpRequest.getHeader("User-Agent");
 
 		if (request.getContractsAccepted() == null || !request.getContractsAccepted()) {
 			throw new BusinessException("Mesafeli satış sözleşmesi ve KVKK onaylanmadan sipariş verilemez.");
@@ -137,25 +140,21 @@ public class OrderItemService implements IOrderItemService {
 			toplamTutar = toplamTutar.add(itemTotal);
 			orderItems.add(oi);
 		}
+		
 
 		order.setItemlist(orderItems);
 		order.setToplamtutar(toplamTutar);
 
 		orderRepository.save(order);
-		paymentAuditLogger.log(PaymentEvent.ORDER_CREATED, order.getId(), user.getId(), "total=" + toplamTutar);
+		paymentAuditLogger.log(PaymentEvent.CONTRACT_ACCEPTED, order.getId(), user.getId(), "contractsAccepted=true", clientIp, userAgent);
 
 		for (BasketItem bi : activeItems) {
 			bi.setActive(false);
 		}
 		basketRepository.save(basket);
-		String clientIp = getClientIp(httpRequest);
-		String userAgent = httpRequest.getHeader("User-Agent");
+		
 
-		order.setClientIp(clientIp);
-
-		paymentAuditLogger.log(PaymentEvent.CONTRACT_ACCEPTED, order.getId(), user.getId(), "contractsAccepted=true",
-				clientIp, userAgent);
-
+	
 		String fakepaymentlink = "https://fakebank.com/pay?orderId=" + order.getId() + "&amount="
 				+ toplamTutar.toPlainString();
 		paymentAuditLogger.log(PaymentEvent.PAYMENT_REDIRECTED, order.getId(), user.getId(),
