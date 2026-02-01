@@ -448,8 +448,8 @@ public class MailService {
     }
     public void sendResetPasswordEmail(User user, String token) {
 
-        String resetLink =
-            "https://alizoneecommerce.onrender.com/reset-password?token=" + token;
+    	String resetLink =
+    			  "https://alizoneecommerce.onrender.com/#/reset-password?token=" + token;
 
         String html = """
             <h2>🔐 Şifre Sıfırlama</h2>
