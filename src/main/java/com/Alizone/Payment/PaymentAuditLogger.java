@@ -38,17 +38,9 @@ public class PaymentAuditLogger {
             String ipAddress,
             String userAgent
     ) {
-        // 1️⃣ FILE LOG
         log.info("{} | orderId={} | userId={} | {} | ip={} | ua={}",
-                event.name(),
-                orderId,
-                userId,
-                message,
-                ipAddress,
-                userAgent
-        );
+                event.name(), orderId, userId, message, ipAddress, userAgent);
 
-        // 2️⃣ DB LOG
         PaymentAudit audit = new PaymentAudit();
         audit.setEvent(event.name());
         audit.setOrderId(orderId);
@@ -57,16 +49,16 @@ public class PaymentAuditLogger {
         audit.setIpAddress(ipAddress);
         audit.setUserAgent(userAgent);
 
-        // 🔥 İstanbul saatini kullan
-        LocalDateTime istanbulTime = ZonedDateTime.now(ZoneId.of("Europe/Istanbul")).toLocalDateTime();
-        audit.setCreatedAt(istanbulTime);
+        
+        ZonedDateTime istanbulNow = ZonedDateTime.now(ZoneId.of("Europe/Istanbul"));
+        audit.setEventTime(istanbulNow.toLocalDateTime());
+        audit.setLoggedAt(istanbulNow.toLocalDateTime());
 
-        // 🔥 DB'ye kaydetmeden önce hash üret
-        String hashInput = orderId + "|" + userId + "|" + event.name() + "|" + istanbulTime + "|" + message;
-        String hash = DigestUtils.sha256Hex(hashInput);
-        audit.setHash(hash);
+        // Hash
+        String hashInput = orderId + "|" + userId + "|" + event.name() + "|" + audit.getEventTime() + "|" + message;
+        audit.setHash(DigestUtils.sha256Hex(hashInput));
 
-        // 3️⃣ DB’ye kaydet
         paymentAuditRepository.save(audit);
     }
-}
+        
+    }

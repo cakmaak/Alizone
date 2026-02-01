@@ -181,6 +181,7 @@ public class OrderItemService implements IOrderItemService {
 		if (success) {
 			order.setSiparisdurumu(OrderStatus.PAID);
 			order.setBankPaymentId(paymentId);
+			
 
 			for (OrderItem item : order.getItemlist()) {
 				Product product = item.getProduct();

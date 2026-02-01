@@ -31,6 +31,12 @@ public class PaymentAudit {
 
     @Column(length = 500)
     private String userAgent;
+    
+    @Column(name = "logged_at")
+    private LocalDateTime loggedAt;
+
+    @Column(name = "event_time")
+    private LocalDateTime eventTime;
 
     private LocalDateTime createdAt;
 
