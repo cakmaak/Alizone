@@ -164,7 +164,7 @@ public class OrderItemService implements IOrderItemService {
 		String fakepaymentlink = "https://fakebank.com/pay?orderId=" + order.getId() + "&amount="
 				+ toplamTutar.toPlainString();
 		paymentAuditLogger.log(PaymentEvent.PAYMENT_REDIRECTED, order.getId(), user.getId(),
-				"provider=FAKEBANK | linkGenerated=true");
+				"provider=FAKEBANK | linkGenerated=true",clientIp,userAgent);
 
 		order.setPaymentLink(fakepaymentlink);
 		order.setPaymentProvider("FAKEBANK");

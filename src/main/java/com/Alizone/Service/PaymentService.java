@@ -14,6 +14,8 @@ import com.Alizone.Payment.PaymentEvent;
 import com.Alizone.Repository.OrderRepository;
 import com.Alizone.Security.HmacUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 public class PaymentService {
 
@@ -29,7 +31,11 @@ public class PaymentService {
 
     @Autowired
     private IOrderItemService orderItemService;
+    
+    @Autowired
+    private HttpServletRequest request;
 
+    
     @Transactional
     public void processCallback(
             Long orderId,
@@ -37,51 +43,59 @@ public class PaymentService {
             Long timestamp,
             String paymentId,
             String incomingSignature) {
-    	
-    	paymentAuditLogger.log(
-    		    PaymentEvent.PAYMENT_CALLBACK_RECEIVED,
-    		    orderId,
-    		    null,
-    		    "paymentId=" + paymentId
-    		);
 
-        //  İMZA DATA (BANKA NE GÖNDERİYORSA AYNI FORMAT)
-        String data = orderId + "|" + success + "|" + timestamp + "|" + paymentId ;
+        // IP alma
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null) ipAddress = request.getRemoteAddr();
 
-        // 2️ BACKEND’DE YENİDEN İMZA ÜRET
-        String expectedSignature =
-                HmacUtil.hmacSha256(data, callbackSecret);
-
-        // 3️ İMZA DOĞRULA
-        if (!expectedSignature.equals(incomingSignature)) {
-            throw new BusinessException("Geçersiz imza ❌");
-        }
-        paymentAuditLogger.log(
-        	    PaymentEvent.PAYMENT_CALLBACK_VERIFIED,
-        	    orderId,
-        	    null,
-        	    "signature=true"
-        	);
-
-        // 4️ ORDER VAR MI?
+        String userAgent = request.getHeader("User-Agent"); 
+        // Order bul
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("Sipariş bulunamadı"));
 
-        // 5️ IDEMPOTENCY (ÇOK KRİTİK)
-        if (order.getSiparisdurumu() == OrderStatus.PAID) {
-            return; 
+        Long userId = order.getUser() != null ? order.getUser().getId() : null;
+
+        // CALLBACK ALINDI
+        paymentAuditLogger.log(
+            PaymentEvent.PAYMENT_CALLBACK_RECEIVED,
+            orderId,
+            userId,
+            "paymentId=" + paymentId,
+            ipAddress,
+            userAgent
+        );
+
+        // İmza kontrol
+        String data = orderId + "|" + success + "|" + timestamp + "|" + paymentId;
+        String expectedSignature = HmacUtil.hmacSha256(data, callbackSecret);
+        if (!expectedSignature.equals(incomingSignature)) {
+            throw new BusinessException("Geçersiz imza ❌");
         }
 
-        // 6️ GERÇEK İŞİ YAPAN SERVİS
-        orderItemService.handlePaymentCallback(orderId, success,paymentId);
         paymentAuditLogger.log(
-        	    PaymentEvent.PAYMENT_SUCCESS,
-        	    orderId,
-        	    order.getUser().getId(),
-        	    "paymentId=" + paymentId
-        	);
+            PaymentEvent.PAYMENT_CALLBACK_VERIFIED,
+            orderId,
+            userId,
+            "signature=true",
+            ipAddress,
+            userAgent
+        );
+
+        // IDEMPOTENCY
+        if (order.getSiparisdurumu() == OrderStatus.PAID) return;
+
+        // İşleme
+        orderItemService.handlePaymentCallback(orderId, success, paymentId);
+
+        paymentAuditLogger.log(
+            PaymentEvent.PAYMENT_SUCCESS,
+            orderId,
+            userId,
+            "paymentId=" + paymentId,
+            ipAddress,
+            userAgent
+        );
     }
-    
 	
 	public String testSign(Long orderId, boolean success, long timestamp,String paymentId) {
 		String data = orderId + "|" + success + "|" + timestamp + "|" + paymentId;
