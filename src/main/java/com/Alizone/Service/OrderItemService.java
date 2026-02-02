@@ -2,6 +2,8 @@ package com.Alizone.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,10 +114,14 @@ public class OrderItemService implements IOrderItemService {
 		}
 
 		Order order = new Order();
-		order.setUser(user);
+		order.setUser(user); 
 		order.setTeslimatAdresi(address);
 		order.setSiparisdurumu(OrderStatus.PENDING);
-
+		order.setContractsAccepted(true);
+		if (request.getContractsAccepted()) {
+		    order.setContractsAcceptedAt(ZonedDateTime.now(ZoneId.of("Europe/Istanbul")).toLocalDateTime());
+		}
+		order.setClientIp(clientIp);
 		List<OrderItem> orderItems = new ArrayList<>();
 		BigDecimal toplamTutar = BigDecimal.ZERO;
 

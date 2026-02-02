@@ -107,16 +107,20 @@ public class MailService {
     }
 
     public void sendOrderCancelledMails(Order order) {
+    	
         sendHtmlMail(
                 order.getUser().getEmail(),
                 "❌ Siparişiniz İptal Edildi",
+                
                 buildOrderCancelledMail(order)
         );
+        String adminHtml = buildAdminOrderCancelledMail(order)
+                + "<br><b>Adres:</b> " + order.getTeslimatAdresi();
 
         sendHtmlMail(
-                adminMail,
-                "⚠️ Sipariş İptal Edildi - #" + order.getId(),
-                buildAdminOrderCancelledMail(order)
+        		adminMail,
+        	    "⚠️ Sipariş İptal Edildi - #" + order.getId(),
+        	    adminHtml
         );
     }
 
@@ -254,6 +258,7 @@ public class MailService {
 
         Address a = order.getTeslimatAdresi();
 
+        
         String addressHtml = """
             <h3>📍 Teslimat Bilgileri</h3>
             <p>
@@ -292,23 +297,53 @@ public class MailService {
                 safe(a.getVergiDairesi())
         );
 
+        
+        StringBuilder itemsHtml = new StringBuilder("<h3>🛒 Sipariş Ürünleri</h3>");
+        for (OrderItem item : order.getItemlist()) {
+            String imageUrl = item.getProduct().getResimler().isEmpty()
+                    ? "https://alizone.com/no-image.png"
+                    : item.getProduct().getResimler().get(0);
+
+            itemsHtml.append("""
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:10px; border:1px solid #eee; border-radius:10px; background:#fafafa">
+                    <img src="%s" alt="%s" style="width:60px; height:60px; object-fit:contain; border-radius:6px"/>
+                    <div style="flex:1">
+                        <b>%s</b><br/>
+                        Adet: %d<br/>
+                        Fiyat: %.2f ₺
+                    </div>
+                </div>
+            """.formatted(
+                    imageUrl,
+                    safe(item.getProduct().getIsim()),
+                    safe(item.getProduct().getIsim()),
+                    item.getAdet(),
+                    item.getToplamfiyat()
+            ));
+        }
+
+        // Final HTML
         return """
-            <div style="font-family:Arial;max-width:600px;margin:auto">
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+                <h2>📦 Yeni Sipariş Geldi</h2>
 
-            <h2>📦 Yeni Sipariş</h2>
+                %s
 
-            %s
+                <hr/>
 
-            <hr/>
+                %s
 
-            <p style="font-size:18px">
-                <b>🧾 Sepet Toplamı:</b> %.2f ₺
-            </p>
+                <hr/>
+
+                <p style="font-size:18px">
+                    <b>🧾 Sepet Toplamı:</b> %.2f ₺
+                </p>
 
             </div>
         """.formatted(
-                addressHtml,
-                order.getToplamtutar()
+            addressHtml,
+            itemsHtml.toString(),
+            order.getToplamtutar()
         );
     }
 

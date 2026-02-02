@@ -48,11 +48,13 @@ public class PaymentAuditLogger {
         audit.setMessage(message);
         audit.setIpAddress(ipAddress);
         audit.setUserAgent(userAgent);
+        
 
         
         ZonedDateTime istanbulNow = ZonedDateTime.now(ZoneId.of("Europe/Istanbul"));
         audit.setEventTime(istanbulNow.toLocalDateTime());
         audit.setLoggedAt(istanbulNow.toLocalDateTime());
+        audit.setCreatedAt(istanbulNow.toLocalDateTime());
 
         // Hash
         String hashInput = orderId + "|" + userId + "|" + event.name() + "|" + audit.getEventTime() + "|" + message;
