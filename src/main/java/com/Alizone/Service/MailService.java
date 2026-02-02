@@ -349,16 +349,66 @@ public class MailService {
 
 
     public String buildShippedMail(Order order) {
-        return """
-            <div style="font-family:Arial;max-width:600px;margin:auto">
-            <h2>📦 Siparişiniz Kargoya Verildi</h2>
+        Address a = order.getTeslimatAdresi();
+        StringBuilder itemsHtml = new StringBuilder();
 
-            <p>Sipariş No: <b>#%d</b></p>
-            <p>Kargo Takip No: <b>%s</b></p>
+        for (OrderItem item : order.getItemlist()) {
+            String imageUrl = item.getProduct().getResimler().isEmpty()
+                    ? "https://alizone.com/no-image.png"
+                    : item.getProduct().getResimler().get(0);
+            itemsHtml.append("""
+                <tr>
+                  <td style="padding:10px; border:1px solid #eee; border-radius:10px; background:#fafafa">
+                    <img src="%s" style="width:60px; height:60px; object-fit:contain; border-radius:6px; vertical-align:middle;"/>
+                    <span style="margin-left:10px; font-weight:bold">%s</span> x %d
+                    <span style="float:right; font-weight:bold; color:#16a34a">%.2f ₺</span>
+                  </td>
+                </tr>
+            """.formatted(imageUrl, safe(item.getProduct().getIsim()), item.getAdet(), item.getToplamfiyat()));
+        }
+
+        return """
+            <div style="font-family:Arial,sans-serif; max-width:600px; margin:auto; border-radius:12px; overflow:hidden; border:1px solid #ddd">
+              <!-- HEADER -->
+              <div style="background:linear-gradient(135deg,#2563eb,#22c55e); color:white; text-align:center; padding:20px;">
+                <h1 style="margin:0">📦 Alizone Klima</h1>
+                <p style="margin:5px 0 0">Siparişiniz Kargoya Verildi!</p>
+              </div>
+
+              <!-- ORDER INFO -->
+              <div style="padding:20px;">
+                <p>Sipariş No: <b>#%d</b></p>
+                <p>Kargo Takip No: <b>%s</b></p>
+                <h4>📦 Sipariş Detayları:</h4>
+                <table width="100%%" cellpadding="5" cellspacing="0">
+                  %s
+                </table>
+
+                <hr style="margin:20px 0"/>
+
+                <h4>📍 Teslimat Adresi</h4>
+                <p>
+                  %s<br/>
+                  %s / %s<br/>
+                  Tel: %s
+                </p>
+
+                <hr style="margin:20px 0"/>
+
+                <p style="text-align:center; color:#64748b; font-size:13px;">
+                  🌐 <a href="https://alizoneklima.com" style="color:#2563eb">www.alizoneklima.com</a><br/>
+                  📞 0554 230 9563
+                </p>
+              </div>
             </div>
         """.formatted(
-                order.getId(),
-                order.getKargotakipno()
+            order.getId(),
+            safe(order.getKargotakipno()),
+            itemsHtml.toString(),
+            safe(a.getAdresSatir1()),
+            safe(a.getIlce()),
+            safe(a.getSehir()),
+            safe(a.getTelefon())
         );
     }
 
