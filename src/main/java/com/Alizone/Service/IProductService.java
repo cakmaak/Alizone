@@ -30,6 +30,7 @@ public interface IProductService {
 	public Integer updatebtuproduct(Long id,Integer newbtu);
 	public String setProductteklifilesatilir(Long id);
 	public String setcategory(Long id);
+	public String setnamebyProduct(Long id,String name);
 	
 	
 

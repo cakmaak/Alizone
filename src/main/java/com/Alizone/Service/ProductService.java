@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Service;
 
 import com.Alizone.Dto.DtoProduct;
@@ -19,8 +20,14 @@ import com.Alizone.Repository.ProductRepository;
 
 @Service
 public class ProductService implements IProductService {
+
+    private final SecurityFilterChain filterChain;
 	@Autowired
 	private ProductRepository productRepository;
+
+    ProductService(SecurityFilterChain filterChain) {
+        this.filterChain = filterChain;
+    }
 
 	@Override
 	public Product addProduct(Product product) {
@@ -227,6 +234,16 @@ public class ProductService implements IProductService {
 		
 		
 	}
+
+	@Override
+	public String setnamebyProduct(Long id, String name) {
+		Optional<Product> optional=productRepository.findById(id);
+		Product product=optional.get();
+		product.setIsim(name);
+		productRepository.save(product);
+		return "Başarıyla değiştirldi";
+	}
+	
 	}
 
 
