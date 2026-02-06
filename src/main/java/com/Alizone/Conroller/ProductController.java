@@ -52,13 +52,6 @@ public class ProductController implements IProductController {
 		return productService.findProductByid(id);
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')")
-	@PutMapping("/setname/{id}")
-	@Override
-	public String setnamebyProduct(@PathVariable Long id, @RequestBody String name) {
-		
-		return productService.setnamebyProduct(id, name);
-	}
 
 
 }

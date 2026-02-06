@@ -24,4 +24,6 @@ public interface IAdminPanelController {
 	public ResponseEntity<?> startRefund(Long orderId);
 	public String setProductteklifilesatilir(Long id);
 	public String setcategory(Long id);
+	public String setnamebyProduct(Long id, String name);
+
 }

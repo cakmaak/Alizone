@@ -13,7 +13,7 @@ public interface IProductController {
 	public ResponseEntity<List<Product>> getallproduct();
 	public ResponseEntity<List<DtoProduct>> getallproductdto();
 	public DtoProduct findProductByid(Long id);
-	public String setnamebyProduct(Long id, String name);
+	
 	
 	
 

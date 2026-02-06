@@ -166,6 +166,14 @@ public class AdminPanelController implements IAdminPanelController {
 		
 		return productService.setcategory(id);
 	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/setname/{id}")
+	@Override
+	public String setnamebyProduct(@PathVariable Long id,@RequestBody String name) {
+		// TODO Auto-generated method stub
+		return productService.setnamebyProduct(id, name);
+	}
 		
 	}
 

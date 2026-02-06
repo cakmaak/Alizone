@@ -239,7 +239,7 @@ public class ProductService implements IProductService {
 	public String setnamebyProduct(Long id, String name) {
 		Optional<Product> optional=productRepository.findById(id);
 		Product product=optional.get();
-		product.setIsim(name);
+		product.setIsim(name);		
 		productRepository.save(product);
 		return "Başarıyla değiştirldi";
 	}
