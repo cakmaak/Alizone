@@ -21,6 +21,8 @@ public class SignupRequest {
 	
 	private String password;
 	
+	private Boolean kvkkAccepted; 
+	
 	
 
 }

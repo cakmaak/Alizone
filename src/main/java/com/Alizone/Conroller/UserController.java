@@ -21,6 +21,8 @@ import com.Alizone.Service.BasketItemService;
 import com.Alizone.Service.IUserService;
 import com.Alizone.Service.MailService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/alizone/user")
 public class UserController implements IUserController {
@@ -61,8 +63,8 @@ public class UserController implements IUserController {
 	
 	@PostMapping("/signup")
 	@Override
-	public ResponseEntity<Map<String, String>> SignUpUser(@RequestBody SignupRequest signupRequest) {
-		User signup = userService.signupRequest(signupRequest);
+	public ResponseEntity<Map<String, String>> SignUpUser(@RequestBody SignupRequest signupRequest,HttpServletRequest request) {
+		User signup = userService.signupRequest(signupRequest,request);
 	    
 	    String token = jwtService.generateToken(signup);
 	    

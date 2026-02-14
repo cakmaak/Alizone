@@ -17,6 +17,7 @@ import com.Alizone.Exception.BusinessException;
 import com.Alizone.Repository.BasketRepository;
 import com.Alizone.Repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 
 
@@ -37,7 +38,15 @@ public class UserService implements	IUserService {
 
 	@Transactional
 	@Override
-	public User signupRequest(SignupRequest signupRequest) {
+	public User signupRequest(SignupRequest signupRequest,HttpServletRequest request) {
+		
+		String ip = getClientIp(request);
+		
+		if (!Boolean.TRUE.equals(signupRequest.getKvkkAccepted())) {
+		    throw new BusinessException("KVKK metnini kabul etmelisiniz");
+		}
+		
+		
 	    if (userRepository.existsByEmail(signupRequest.getEmail())) {
 	        throw new BusinessException("Bu mail adresine kayıtlı hesap zaten mevcut");
 	    }
@@ -50,6 +59,10 @@ public class UserService implements	IUserService {
 	    user.setSoyisim(signupRequest.getSoyisim());
 	    user.setVasıf(ROL.USER);
 	    user.setTelno(signupRequest.getTelno());
+	    user.setKvkkAccepted(true);
+	    user.setKvkkAcceptedAt(LocalDateTime.now());
+	    user.setKvkkAcceptedIp(ip);
+	    
 	    userRepository.save(user);
 
 	    
@@ -132,7 +145,13 @@ public class UserService implements	IUserService {
 	    return userRepository.findByEmail(email);
 	}
 	
-	
+	private String getClientIp(HttpServletRequest request) {
+	    String xf = request.getHeader("X-Forwarded-For");
+	    if (xf != null && !xf.isBlank()) {
+	        return xf.split(",")[0].trim();
+	    }
+	    return request.getRemoteAddr();
+	}
 	
 
 

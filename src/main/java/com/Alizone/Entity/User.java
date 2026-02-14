@@ -56,6 +56,15 @@ public class User {
 	private String resetToken;
 	
 	private LocalDateTime resetTokenExpiry;
+	
+	@Column(name = "kvkk_accepted",nullable = false)
+	private Boolean kvkkAccepted;
+
+	@Column(name = "kvkk_accepted_at",nullable = false)
+	private LocalDateTime kvkkAcceptedAt;
+
+	@Column(name = "kvkk_accepted_ip",nullable = false)
+	private String kvkkAcceptedIp;
 
 	
 	@PrePersist
