@@ -14,6 +14,8 @@ import com.Alizone.Entity.Basket;
 import com.Alizone.Entity.User;
 import com.Alizone.Enum.ROL;
 import com.Alizone.Exception.BusinessException;
+import com.Alizone.Payment.PaymentAuditLogger;
+import com.Alizone.Payment.PaymentEvent;
 import com.Alizone.Repository.BasketRepository;
 import com.Alizone.Repository.UserRepository;
 
@@ -35,12 +37,16 @@ public class UserService implements	IUserService {
 	
 	@Autowired
 	private BasketRepository basketRepository;
+	
+	@Autowired
+	private PaymentAuditLogger paymentAuditLogger;
 
 	@Transactional
 	@Override
 	public User signupRequest(SignupRequest signupRequest,HttpServletRequest request) {
 		
 		String ip = getClientIp(request);
+		String userAgent = request.getHeader("User-Agent");
 		
 		if (!Boolean.TRUE.equals(signupRequest.getKvkkAccepted())) {
 		    throw new BusinessException("KVKK metnini kabul etmelisiniz");
@@ -62,8 +68,24 @@ public class UserService implements	IUserService {
 	    user.setKvkkAccepted(true);
 	    user.setKvkkAcceptedAt(LocalDateTime.now());
 	    user.setKvkkAcceptedIp(ip);
-	    
 	    userRepository.save(user);
+	    
+	    paymentAuditLogger.log(
+	    	    PaymentEvent.SIGNUP_CREATED,
+	    	    null,
+	    	    user.getId(),
+	    	    "User registered successfully",
+	    	    ip,
+	    	    userAgent
+	    	);
+	    paymentAuditLogger.log(
+	            PaymentEvent.KVKK_ACCEPTED,
+	            null,
+	            user.getId(),
+	            "KVKK accepted during signup",
+	            ip,
+	            userAgent
+	    );
 
 	    
 	    try {

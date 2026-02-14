@@ -19,5 +19,8 @@ public enum PaymentEvent {
 	    
 	    REFUND_REQUESTED,
 	    REFUND_SUCCESS,
+	    
+	    SIGNUP_CREATED,
+	    KVKK_ACCEPTED
 
 }
