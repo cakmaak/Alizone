@@ -63,7 +63,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173","https://alizone.vercel.app","https://alizone-production.up.railway.app","https://alizone-ecommerce.vercel.app","https://alizoneecommerce.onrender.com"));
+        config.setAllowedOriginPatterns(List.of(
+        			"http://localhost:5173",
+        	        "https://*.vercel.app",
+        	        "https://*.onrender.com",
+        	        "https://*.alizoneklima.com",
+        	        "https://*.alizoneklima.com.tr"
+        		));
         config.setAllowedMethods(
                 List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
