@@ -13,6 +13,7 @@ import com.Alizone.Enum.ROL;
 import com.Alizone.Repository.UserRepository;
 import com.Alizone.Service.IUserService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.management.relation.Role;
@@ -66,6 +67,9 @@ public class DataInitializer implements CommandLineRunner {
                 admin.setPassword(passwordEncoder.encode(adminPassword));
                 admin.setTelno("0000000000");
                 admin.setVasıf(ROL.ADMIN);
+                admin.setKvkkAccepted(true);
+                admin.setKvkkAcceptedAt(LocalDateTime.now());
+                admin.setKvkkAcceptedIp("SYSTEM");
 
                 userService.saveuseradmin(admin);
 
