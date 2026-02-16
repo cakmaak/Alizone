@@ -243,7 +243,27 @@ public class ProductService implements IProductService {
 		productRepository.save(product);
 		return "Başarıyla değiştirldi";
 	}
-	
+
+	@Override
+	public String setnotes(Long id, List<String> newnotes) {
+		Optional<Product> optional = productRepository.findById(id);
+
+	    if (optional.isEmpty()) {
+	        return "Ürün bulunamadı";
+	    }
+
+	    Product product = optional.get();
+	    product.setNotlar(newnotes);
+	    productRepository.save(product);
+
+	    return "Notlar Güncellendi";
 	}
+		
+	
+		
+		
+	}
+	
+	
 
 

@@ -31,6 +31,7 @@ public interface IProductService {
 	public String setProductteklifilesatilir(Long id);
 	public String setcategory(Long id);
 	public String setnamebyProduct(Long id,String name);
+	public String setnotes(Long id,List<String> newnotes);
 	
 	
 

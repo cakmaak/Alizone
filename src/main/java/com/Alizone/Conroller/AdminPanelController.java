@@ -171,9 +171,18 @@ public class AdminPanelController implements IAdminPanelController {
 	@PutMapping("/setname/{id}")
 	@Override
 	public String setnamebyProduct(@PathVariable Long id,@RequestBody String name) {
-		// TODO Auto-generated method stub
 		return productService.setnamebyProduct(id, name);
 	}
+	
+	@PutMapping("/setnotes/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Override
+	public String setnotes(@PathVariable Long id,@RequestBody List<String> newnotes) {
+		
+		return productService.setnotes(id, newnotes);
+	}
+
+
 		
 	}
 

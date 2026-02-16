@@ -52,6 +52,8 @@ public class ProductController implements IProductController {
 		return productService.findProductByid(id);
 	}
 	
+	
+	
 
 
 }
