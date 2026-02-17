@@ -258,6 +258,25 @@ public class ProductService implements IProductService {
 
 	    return "Notlar Güncellendi";
 	}
+
+	@Override
+	public String setMontage(Long id) {
+		Optional<Product> optional=productRepository.findById(id);
+		Product product=optional.get();
+		product.setMontage(true);
+		productRepository.save(product);
+		return "başarıyla değiştirildi";
+	}
+
+	@Override
+	public String setdeMontage(Long id) {
+		Optional<Product> optional=productRepository.findById(id);
+		Product product=optional.get();
+		product.setMontage(false);
+		productRepository.save(product);
+
+		return null;
+	}
 		
 	
 		

@@ -2,6 +2,7 @@ package com.Alizone.Conroller;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class AdminPanelController implements IAdminPanelController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
 	public Product updateproductprice(@PathVariable Long id,@RequestBody BigDecimal newprice) {
-		// TODO Auto-generated method stub
+		
 		return productService.updateproductprice(id, newprice);
 	}
 	
@@ -63,7 +64,7 @@ public class AdminPanelController implements IAdminPanelController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
 	public Product updateStockquantity(@PathVariable Long id,@RequestBody Integer newquantity) {
-		// TODO Auto-generated method stub
+		
 		return productService.updateStockquantity(id, newquantity);
 	}
 
@@ -180,6 +181,25 @@ public class AdminPanelController implements IAdminPanelController {
 	public String setnotes(@PathVariable Long id,@RequestBody List<String> newnotes) {
 		
 		return productService.setnotes(id, newnotes);
+	}
+
+	@PutMapping("/setmontage/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Override
+	public String setMontage(@PathVariable Long id) {
+		return productService.setMontage(id);
+
+	
+		
+	}
+	
+
+	@PutMapping("/setdemontage/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Override
+	public String setDemontage(@PathVariable Long id) {
+		
+		return productService.setdeMontage(id);
 	}
 
 

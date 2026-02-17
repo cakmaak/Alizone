@@ -88,6 +88,9 @@ public class Product {
     @Column(nullable = false)
     private boolean aktif = true;
     
+    @Column(nullable = true)
+    private boolean isMontage=true;
+    
     
     Integer btu;
 

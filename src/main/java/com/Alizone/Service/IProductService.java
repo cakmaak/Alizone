@@ -32,6 +32,8 @@ public interface IProductService {
 	public String setcategory(Long id);
 	public String setnamebyProduct(Long id,String name);
 	public String setnotes(Long id,List<String> newnotes);
+	public String setMontage(Long id);
+	public String setdeMontage(Long id);
 	
 	
 
