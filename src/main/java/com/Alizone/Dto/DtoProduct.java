@@ -45,6 +45,7 @@ public class DtoProduct {
     private Integer btu;
     private Integer stokadeti;
     private boolean teklifilesatilir;
+    private boolean Montage;
     
 }
 	

@@ -75,6 +75,9 @@ public class ProductService implements IProductService {
 			dtoProduct.setStokDurumu(product.getStokDurumu());
 			dtoProduct.setTeklifilesatilir(product.isTeklifilesatilir());
 			dtoProduct.setBtu(product.getBtu());
+			dtoProduct.setMontage(product.isMontage());
+			
+			
 			dtoProductlist.add(dtoProduct);
 			
 			}
