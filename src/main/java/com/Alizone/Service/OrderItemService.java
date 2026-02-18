@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.Alizone.Dto.DtoOrderItem;
 import com.Alizone.Dto.DtoOrderRequest;
+import com.Alizone.Dto.PurchaseLinkResponse;
 import com.Alizone.Entity.Address;
 import com.Alizone.Entity.Basket;
 import com.Alizone.Entity.BasketItem;
@@ -65,10 +66,13 @@ public class OrderItemService implements IOrderItemService {
 
 	@Autowired
 	private IAddressService addressService;
+	
+	@Autowired
+	private HalkPaymentService halkPaymentService;
 
 	@Override
 	@Transactional
-	public Long saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
+	public String saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
 		
 		String clientIp = getClientIp(httpRequest);
 		String userAgent = httpRequest.getHeader("User-Agent");
@@ -172,7 +176,9 @@ public class OrderItemService implements IOrderItemService {
 		//mailService.sendCustomMail(user.getEmail(), "Ödeme Linki",
 				//"Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink);
 
-		return order.getId();
+		PurchaseLinkResponse response = halkPaymentService.createPurchaseLink(order);
+
+		return response.getLink();
 	}
 
 	@Override
@@ -218,6 +224,7 @@ public class OrderItemService implements IOrderItemService {
 			}
 
 			order.setSiparisdurumu(OrderStatus.CANCELLED);
+			
 			orderRepository.save(order);
 		}
 	}

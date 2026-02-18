@@ -1,23 +1,29 @@
 package com.Alizone.Conroller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.Alizone.Dto.DtoPaymentResponse;
-import com.Alizone.Dto.Halk3DRequestDto;
 import com.Alizone.Service.PaymentService;
 
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
 
-	@Autowired
-	private PaymentService paymentService;
+    private final PaymentService paymentService;
 
-	
-    @PostMapping("/start/{orderId}")
-    public ResponseEntity<Halk3DRequestDto> startPayment(@PathVariable Long orderId) throws Exception {
-        return ResponseEntity.ok(paymentService.startHalkPayment(orderId));
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @PostMapping("/halk/link/{orderId}")
+    public ResponseEntity<Void> createLink(@PathVariable Long orderId) throws Exception {
+
+        String paymentUrl = paymentService.createPurchaseLink(orderId);
+
+        return ResponseEntity
+                .status(302)
+                .header("Location", paymentUrl)
+                .build();
     }
 }
