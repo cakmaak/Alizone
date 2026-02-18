@@ -68,7 +68,7 @@ public class OrderItemService implements IOrderItemService {
 
 	@Override
 	@Transactional
-	public String saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
+	public Long saveOrderitemfromBasket(DtoOrderRequest request, HttpServletRequest httpRequest) {
 		
 		String clientIp = getClientIp(httpRequest);
 		String userAgent = httpRequest.getHeader("User-Agent");
@@ -161,19 +161,18 @@ public class OrderItemService implements IOrderItemService {
 		
 
 	
-		String fakepaymentlink = "https://fakebank.com/pay?orderId=" + order.getId() + "&amount="
-				+ toplamTutar.toPlainString();
+		order.getId();		
 		paymentAuditLogger.log(PaymentEvent.PAYMENT_REDIRECTED, order.getId(), user.getId(),
-				"provider=FAKEBANK | linkGenerated=true",clientIp,userAgent);
+				"provider=HALKODEME | 3DStartReady=true",clientIp,userAgent);
 
-		order.setPaymentLink(fakepaymentlink);
-		order.setPaymentProvider("FAKEBANK");
+		
+		order.setPaymentProvider("HALKODEME");
 		orderRepository.save(order);
 
 		//mailService.sendCustomMail(user.getEmail(), "Ödeme Linki",
 				//"Siparişiniz oluşturuldu! Ödeme için link: " + fakepaymentlink);
 
-		return fakepaymentlink;
+		return order.getId();
 	}
 
 	@Override

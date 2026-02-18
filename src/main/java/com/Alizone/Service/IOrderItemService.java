@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface IOrderItemService {
 	
-	public String saveOrderitemfromBasket(DtoOrderRequest request,HttpServletRequest httpRequest);
+	public Long saveOrderitemfromBasket(DtoOrderRequest request,HttpServletRequest httpRequest);
 	public List<Order> findOrderitem();
 	public Long getLastCreatedOrderIdForUser(User user);
 	public void handlePaymentCallback(Long orderId, boolean success,String paymentId);
