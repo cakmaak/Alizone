@@ -1,5 +1,8 @@
 package com.Alizone.Conroller;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +30,17 @@ public class PaymentController {
                 .status(302)
                 .header("Location", paymentUrl)
                 .build();
+    }
+    @GetMapping("/ping-test")
+    public String pingTest() {
+        try {
+            URL url = new URL("https://testapp.halkode.com.tr");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(5000);
+            con.connect();
+            return "Connected";
+        } catch (Exception e) {
+            return e.toString();
+        }
     }
 }
