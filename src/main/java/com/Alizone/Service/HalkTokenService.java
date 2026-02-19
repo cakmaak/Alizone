@@ -25,10 +25,10 @@ public class HalkTokenService {
     @SuppressWarnings("unchecked")
     public String getToken() {
 
-        String url = baseUrl + "/api/token"; // https://testapp.halkode.com.tr/ccpayment/api/token
+        String url = baseUrl + "/api/token";
 
         Map<String, String> request = new HashMap<>();
-        request.put("app_id", appKey);      // <<< burası app_id olmalı
+        request.put("app_id", appKey);
         request.put("app_secret", appSecret);
 
         ResponseEntity<Map> response =
@@ -39,7 +39,12 @@ public class HalkTokenService {
         }
 
         Map<String, Object> body = response.getBody();
-        return body.get("token").toString();
+        if (body == null || !body.containsKey("data")) {
+            throw new RuntimeException("Token alınamadı, response body boş veya data yok");
+        }
+
+        Map<String, Object> data = (Map<String, Object>) body.get("data");
+        return data.get("token").toString();
     }
     public void testToken() {
         String token = getToken();
