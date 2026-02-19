@@ -7,18 +7,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.Alizone.Service.HalkPaymentService;
+import com.Alizone.Service.HalkTokenService;
 import com.Alizone.Service.PaymentService;
 
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+  
 
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
+   @Autowired
+   private PaymentService paymentService;
+   
+   @Autowired
+   private HalkTokenService halkTokenService;
+
+
 
     @PostMapping("/halk/link/{orderId}")
     public ResponseEntity<Void> createRealHalkLink(@PathVariable Long orderId) {
@@ -42,5 +47,10 @@ public class PaymentController {
         } catch (Exception e) {
             return e.toString();
         }
+    }
+    @GetMapping("/gettoken")
+    public String gettoken() {
+    	return halkTokenService.getToken();
+    	
     }
 }
