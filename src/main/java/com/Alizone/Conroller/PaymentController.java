@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
 import com.Alizone.Service.HalkPaymentService;
 import com.Alizone.Service.HalkTokenService;
 import com.Alizone.Service.PaymentService;
@@ -52,5 +54,17 @@ public class PaymentController {
     public String gettoken() {
     	return halkTokenService.getToken();
     	
+    }
+    @GetMapping("/test-halk")
+    public String testHalk() {
+        try {
+            RestTemplate rt = new RestTemplate();
+            return rt.getForObject(
+                "https://testapp.halkode.com.tr/ccpayment/api/token",
+                String.class
+            );
+        } catch (Exception e) {
+            return "HATA: " + e.getMessage();
+        }
     }
 }

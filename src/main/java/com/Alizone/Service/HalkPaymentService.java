@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,16 +24,17 @@ public class HalkPaymentService {
     @Value("${halk.merchant-key}")
     private String merchantKey;
 
-    private final HalkTokenService tokenService;
+    @Autowired
+    private HalkTokenService halkTokenService;
+    
+    
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public HalkPaymentService(HalkTokenService tokenService) {
-        this.tokenService = tokenService;
-    }
+
 
     public PurchaseLinkResponse createPurchaseLink(Order order) {
 
-        String token = tokenService.getToken();
+        String token = halkTokenService.getToken();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
