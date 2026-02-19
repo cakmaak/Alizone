@@ -11,14 +11,17 @@ import com.Alizone.Service.PaymentService;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
-    @PostMapping("/halk/fake-link/{orderId}")
-    public ResponseEntity<Void> createFakeLink(@PathVariable Long orderId) {
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
-        // createFakePurchaseLink metodunu kullanalım
-        String paymentUrl = paymentService.createFakePurchaseLink(orderId);
+    @PostMapping("/halk/link/{orderId}")
+    public ResponseEntity<Void> createRealHalkLink(@PathVariable Long orderId) {
+
+        // 1️⃣ Order alıyoruz
+        String paymentUrl = paymentService.createRealPurchaseLink(orderId);
 
         return ResponseEntity
                 .status(302)

@@ -28,6 +28,9 @@ public class PaymentService {
 
     @Autowired
     private IOrderItemService orderItemService;
+    
+    @Autowired
+    private HalkPaymentService halkPaymentService;
 
     @Value("${halk.merchant-id}")
     private String merchantId;
@@ -47,7 +50,16 @@ public class PaymentService {
     // 1️⃣ 3D ÖDEME BAŞLAT
     // ===============================
     @Transactional
-    public String createFakePurchaseLink(Long orderId) {
-        return "https://fakepaymentlink.com/order/" + orderId;
+    public String createRealPurchaseLink(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Order bulunamadı"));
+
+        PurchaseLinkResponse response = halkPaymentService.createPurchaseLink(order);
+
+        if (response == null || response.getLink() == null) {
+            throw new RuntimeException("Purchase link alınamadı");
+        }
+
+        return response.getLink();
     }
     }
