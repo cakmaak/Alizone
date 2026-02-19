@@ -34,17 +34,24 @@ public class HalkTokenService {
         ResponseEntity<Map> response =
                 restTemplate.postForEntity(url, request, Map.class);
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Token alınamadı, status: " + response.getStatusCode());
-        }
-
         Map<String, Object> body = response.getBody();
-        if (body == null || !body.containsKey("data")) {
-            throw new RuntimeException("Token alınamadı, response body boş veya data yok");
+
+        if (body == null) {
+            throw new RuntimeException("Token response boş");
         }
 
-        Map<String, Object> data = (Map<String, Object>) body.get("data");
-        return data.get("token").toString();
+        Object dataObj = body.get("data");
+        if (!(dataObj instanceof Map)) {
+            throw new RuntimeException("Token data alanı yok: " + body);
+        }
+
+        Map<String, Object> data = (Map<String, Object>) dataObj;
+
+        String token = data.get("token").toString();
+
+        System.out.println("ALINAN TOKEN: " + token);
+
+        return token;
     }
     public void testToken() {
         String token = getToken();

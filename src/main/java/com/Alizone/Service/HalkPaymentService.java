@@ -1,6 +1,7 @@
 package com.Alizone.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -62,13 +63,15 @@ public class HalkPaymentService {
                 + "\"invoice_id\":\"" + order.getId() + "\","
                 + "\"invoice_description\":\"Alizone Sipariş\","
                 + "\"total\":" + order.getToplamtutar() + ","
-                + "\"return_url\":\"https://seninsite.com/payment/success\","
-                + "\"cancel_url\":\"https://seninsite.com/payment/fail\","
+                + "\"return_url\":\"https://alizoneklima.com/payment/success\","
+                + "\"cancel_url\":\"https://alizoneklima.com/payment/fail\","
                 + "\"items\":["
-                + "{\"name\":\"Sipariş\","
+                + "{"
+                + "\"name\":\"Sipariş\","
                 + "\"price\":" + order.getToplamtutar() + ","
                 + "\"quantity\":1,"
-                + "\"description\":\"Alizone Klima Siparişi\"}"
+                + "\"description\":\"Alizone Klima Siparişi\""
+                + "}"
                 + "]"
                 + "}";
     }
