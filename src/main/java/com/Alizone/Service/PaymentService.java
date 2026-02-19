@@ -47,62 +47,7 @@ public class PaymentService {
     // 1️⃣ 3D ÖDEME BAŞLAT
     // ===============================
     @Transactional
-    public String createPurchaseLink(Long orderId) throws Exception {
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new BusinessException("Order bulunamadı"));
-
-        String token = halkTokenService.getToken();
-
-        String invoiceJson = """
-            {
-              "invoice_id":"%s",
-              "invoice_description":"Order Payment",
-              "total":%s,
-              "return_url":"%s",
-              "cancel_url":"%s",
-              "items":[
-                {
-                  "name":"Order Item",
-                  "price":%s,
-                  "quantity":1,
-                  "description":"Test"
-                }
-              ]
-            }
-            """.formatted(
-                order.getId(),
-                order.getToplamtutar(),
-                successUrl,
-                failUrl,
-                order.getToplamtutar()
-            );
-
-        PurchaseLinkRequest request = new PurchaseLinkRequest();
-        request.setMerchant_key(merchantKey);
-        request.setCurrency_code("TRY");
-        request.setInvoice(invoiceJson);
-        request.setName("Test");
-        request.setSurname("User");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<PurchaseLinkRequest> entity =
-                new HttpEntity<>(request, headers);
-
-        ResponseEntity<PurchaseLinkResponse> response =
-                restTemplate.postForEntity(
-                        "https://testapp.halkode.com.tr/ccpayment/purchase/link",
-                        entity,
-                        PurchaseLinkResponse.class
-                );
-
-        if (response.getBody() != null && Boolean.TRUE.equals(response.getBody().getStatus())) {
-            return response.getBody().getLink();
-        }
-
-        throw new RuntimeException("Purchase link oluşturulamadı");
+    public String createFakePurchaseLink(Long orderId) {
+        return "https://fakepaymentlink.com/order/" + orderId;
     }
     }

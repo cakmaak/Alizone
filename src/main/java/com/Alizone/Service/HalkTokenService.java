@@ -39,8 +39,7 @@ public class HalkTokenService {
         }
 
         Map<String, Object> body = response.getBody();
-        Map<String, Object> data = (Map<String, Object>) body.get("data");
-
-        return data.get("token").toString();
+        return body.get("token").toString();
+        
     }
 }

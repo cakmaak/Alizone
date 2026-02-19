@@ -1,5 +1,6 @@
 package com.Alizone.Conroller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,16 +11,14 @@ import com.Alizone.Service.PaymentService;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+    @Autowired
+    private PaymentService paymentService;
 
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
+    @PostMapping("/halk/fake-link/{orderId}")
+    public ResponseEntity<Void> createFakeLink(@PathVariable Long orderId) {
 
-    @PostMapping("/halk/link/{orderId}")
-    public ResponseEntity<Void> createLink(@PathVariable Long orderId) throws Exception {
-
-        String paymentUrl = paymentService.createPurchaseLink(orderId);
+        // createFakePurchaseLink metodunu kullanalım
+        String paymentUrl = paymentService.createFakePurchaseLink(orderId);
 
         return ResponseEntity
                 .status(302)
